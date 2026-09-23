@@ -44,6 +44,19 @@ describe('Database and Repository', () => {
       'smriti_mandir', 'dhwani_tarang', 'dhyaan_kendra', 'dainik_dinlipi'
     ];
     
+    // Warm-up write to initialize IndexedDB in-memory schema
+    await repository.saveTelemetryEvent({
+      session_id: 'warmup',
+      patient_id: 'pat-123',
+      game_id: 'smriti_mandir',
+      task_identifier: 'warmup',
+      completion_time_ms: 100,
+      error_count: 0,
+      hesitation_pause_ms: 0,
+      timestamp: new Date().toISOString()
+    });
+    await db.telemetry_events.clear();
+    
     for (const game of games) {
       const payload: InboundTelemetryPayload = {
         session_id: typeof crypto !== 'undefined' && crypto.randomUUID ? crypto.randomUUID() : `uuid-${Date.now()}`,
