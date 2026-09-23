@@ -1,3 +1,4 @@
+from pydantic import model_validator
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 class Settings(BaseSettings):
@@ -17,5 +18,21 @@ class Settings(BaseSettings):
     ACCESS_TOKEN_EXPIRE_MINUTES: int = 60 * 24 * 7  # 7 days
 
     model_config = SettingsConfigDict(env_file=".env", case_sensitive=True)
+
+    @model_validator(mode='after')
+    def parse_db_uri(self):
+        uri = self.SQLALCHEMY_DATABASE_URI
+        if uri.startswith("postgres://"):
+            uri = uri.replace("postgres://", "postgresql+asyncpg://", 1)
+        elif uri.startswith("postgresql://"):
+            uri = uri.replace("postgresql://", "postgresql+asyncpg://", 1)
+        
+        if "?" in uri:
+            base, query = uri.split("?", 1)
+            params = [p for p in query.split("&") if not p.startswith("sslmode=")]
+            uri = f"{base}?{'&'.join(params)}" if params else base
+            
+        self.SQLALCHEMY_DATABASE_URI = uri
+        return self
 
 settings = Settings()
