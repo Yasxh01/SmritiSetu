@@ -3,6 +3,7 @@ import { AlertTriangle, PhoneCall, MapPin, CheckCircle2, X } from 'lucide-react'
 import { api } from '../../services/api';
 import { audio } from '../../services/audioService';
 import { Language, translations } from '../../services/i18n';
+import { SmsDispatchModal } from './SmsDispatchModal';
 
 interface EmergencySOSModalProps {
   isOpen: boolean;
@@ -20,6 +21,7 @@ export const EmergencySOSModal: React.FC<EmergencySOSModalProps> = ({
   const [countdown, setCountdown] = useState(3);
   const [dispatched, setDispatched] = useState(false);
   const [coords, setCoords] = useState({ lat: 26.1433, lng: 91.7898 }); // Kamrup, Assam
+  const [showSmsPreview, setShowSmsPreview] = useState(false);
 
   const t = translations[currentLang];
 
@@ -139,10 +141,26 @@ export const EmergencySOSModal: React.FC<EmergencySOSModalProps> = ({
                 <PhoneCall className="w-5 h-5" />
                 <span>{t.call108}</span>
               </a>
+
+              {/* Live Demo SMS Handset Preview Button */}
+              <button
+                type="button"
+                onClick={() => setShowSmsPreview(true)}
+                className="w-full py-3 rounded-2xl bg-[#ff5a00]/20 hover:bg-[#ff5a00]/30 border border-[#ff5a00]/40 text-[#ff7a29] font-bold text-xs sm:text-sm flex items-center justify-center gap-2 transition-all shadow-glow-orange"
+              >
+                <span>📱 View Dispatched SMS on Phones (Live Demo Handset)</span>
+              </button>
             </div>
           )}
         </div>
       </div>
+
+      <SmsDispatchModal
+        isOpen={showSmsPreview}
+        onClose={() => setShowSmsPreview(false)}
+        currentLang={currentLang}
+        initialEvent="sos"
+      />
     </div>
   );
 };

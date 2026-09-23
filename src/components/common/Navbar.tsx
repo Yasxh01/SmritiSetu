@@ -1,6 +1,7 @@
-import React from 'react';
-import { Brain, Wifi, WifiOff, Globe, AlertTriangle, UserCheck, ShieldAlert, HeartPulse } from 'lucide-react';
+import React, { useState } from 'react';
+import { Brain, Wifi, WifiOff, Globe, AlertTriangle, UserCheck, ShieldAlert, HeartPulse, Smartphone } from 'lucide-react';
 import { Language, translations } from '../../services/i18n';
+import { SmsDispatchModal } from './SmsDispatchModal';
 
 interface NavbarProps {
   currentLang: Language;
@@ -29,6 +30,7 @@ export const Navbar: React.FC<NavbarProps> = ({
   onManualSync,
   onLogout,
 }) => {
+  const [showSmsModal, setShowSmsModal] = useState(false);
   const t = translations[currentLang];
 
   return (
@@ -161,6 +163,16 @@ export const Navbar: React.FC<NavbarProps> = ({
           <option value="doctor" className="bg-[#12141c] text-white">🏥 {t.doctorRole}</option>
         </select>
 
+        {/* Live SMS Gateway Dispatch Monitor Button (For Demo & Evaluator Inspection) */}
+        <button
+          onClick={() => setShowSmsModal(true)}
+          title="Inspect Live Dual-Channel SMS Gateway Dispatch"
+          className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-xl bg-[#ff5a00]/15 hover:bg-[#ff5a00]/25 text-[#ff7a29] border border-[#ff5a00]/30 text-xs font-bold transition-all shadow-glow-orange cursor-pointer"
+        >
+          <Smartphone className="w-3.5 h-3.5" />
+          <span className="hidden xl:inline">SMS Monitor</span>
+        </button>
+
         {/* Emergency SOS Button */}
         <button
           onClick={onTriggerSos}
@@ -179,6 +191,14 @@ export const Navbar: React.FC<NavbarProps> = ({
           <UserCheck className="w-4 h-4" />
         </button>
       </div>
+
+      {/* Live Dual-Channel SMS Telephony Modal */}
+      <SmsDispatchModal
+        isOpen={showSmsModal}
+        onClose={() => setShowSmsModal(false)}
+        currentLang={currentLang}
+        initialEvent="sos"
+      />
     </header>
   );
 };

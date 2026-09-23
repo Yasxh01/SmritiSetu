@@ -1,8 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import { AreaChart, Area, XAxis, YAxis, Tooltip, ResponsiveContainer } from 'recharts';
-import { Activity, AlertTriangle, ShieldCheck, HeartPulse, Clock, FileText, Phone, Sparkles, Stethoscope, ClipboardList, CheckCircle2 } from 'lucide-react';
+import { Activity, AlertTriangle, ShieldCheck, HeartPulse, Clock, FileText, Phone, Sparkles, Stethoscope, ClipboardList, CheckCircle2, Smartphone } from 'lucide-react';
 import { api, ChiData } from '../../services/api';
 import { Language, translations } from '../../services/i18n';
+import { SmsDispatchModal } from '../common/SmsDispatchModal';
 
 interface CaregiverDashboardProps {
   currentLang?: Language;
@@ -12,6 +13,7 @@ interface CaregiverDashboardProps {
 export const CaregiverDashboard: React.FC<CaregiverDashboardProps> = ({ currentLang = 'en', activeRole = 'caregiver' }) => {
   const [chiData, setChiData] = useState<ChiData | null>(null);
   const [loading, setLoading] = useState(true);
+  const [showSmsModal, setShowSmsModal] = useState(false);
 
   const t = translations[currentLang];
   const isDoctor = activeRole === 'doctor';
@@ -248,13 +250,23 @@ export const CaregiverDashboard: React.FC<CaregiverDashboardProps> = ({ currentL
           </div>
         </div>
 
-        <button
-          onClick={() => alert('Detailed clinical incident logs verified. Patient stabilized on Day 24.')}
-          className="px-4 py-2 rounded-xl bg-white/10 hover:bg-white/20 text-white text-xs font-semibold shrink-0"
-        >
-          {t.viewIncidentLog}
-        </button>
+        <div className="flex items-center gap-2 shrink-0">
+          <button
+            onClick={() => setShowSmsModal(true)}
+            className="px-3.5 py-2 rounded-xl bg-[#ff5a00]/20 hover:bg-[#ff5a00]/30 border border-[#ff5a00]/40 text-[#ff7a29] text-xs font-bold flex items-center gap-1.5 transition-all shadow-glow-orange cursor-pointer"
+          >
+            <Smartphone className="w-3.5 h-3.5" />
+            <span>📱 View Dispatched SMS (Demo Log)</span>
+          </button>
+        </div>
       </div>
+
+      <SmsDispatchModal
+        isOpen={showSmsModal}
+        onClose={() => setShowSmsModal(false)}
+        currentLang={currentLang}
+        initialEvent="anomaly"
+      />
     </div>
   );
 };
