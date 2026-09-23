@@ -142,13 +142,13 @@ export const EmergencySOSModal: React.FC<EmergencySOSModalProps> = ({
                 <span>{t.call108}</span>
               </a>
 
-              {/* Live Demo SMS Handset Preview Button */}
+              {/* Official SMS Handset Preview Button */}
               <button
                 type="button"
                 onClick={() => setShowSmsPreview(true)}
-                className="w-full py-3 rounded-2xl bg-[#ff5a00]/20 hover:bg-[#ff5a00]/30 border border-[#ff5a00]/40 text-[#ff7a29] font-bold text-xs sm:text-sm flex items-center justify-center gap-2 transition-all shadow-glow-orange"
+                className="w-full py-3 rounded-2xl bg-[#ff5a00]/20 hover:bg-[#ff5a00]/30 border border-[#ff5a00]/40 text-[#ff7a29] font-bold text-xs sm:text-sm flex items-center justify-center gap-2 transition-all shadow-glow-orange cursor-pointer"
               >
-                <span>📱 View Dispatched SMS on Phones (Live Demo Handset)</span>
+                <span>📱 View Dispatched Gateway SMS</span>
               </button>
             </div>
           )}

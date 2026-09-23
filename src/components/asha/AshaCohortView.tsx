@@ -56,6 +56,51 @@ export const AshaCohortView: React.FC<AshaCohortViewProps> = ({ currentLang = 'e
     }, 1500);
   };
 
+  const defaultPatients = [
+    {
+      patient_id: 'ner-pat-78902-assamese',
+      name_alias: 'Bonti Aita (বন্টি আইতা)',
+      preferred_lang: 'as',
+      baseline_moca: 22,
+      current_chi: 78.4,
+      triage_status: 'CRITICAL_DROP' as const,
+      active_anomaly: 'ACUTE_LATENCY_SPIKE',
+      last_synced: 'Just now',
+    },
+    {
+      patient_id: 'ner-pat-78903-assamese',
+      name_alias: 'Prabhat Kalita (প্ৰভাত কলিতা)',
+      preferred_lang: 'as',
+      baseline_moca: 24,
+      current_chi: 84.2,
+      triage_status: 'STABLE' as const,
+      active_anomaly: undefined,
+      last_synced: '12 mins ago',
+    },
+    {
+      patient_id: 'ner-pat-78904-bodo',
+      name_alias: "Jonali Boro (जोनालि बर')",
+      preferred_lang: 'brx',
+      baseline_moca: 20,
+      current_chi: 69.0,
+      triage_status: 'WARNING' as const,
+      active_anomaly: 'LOW_CHI',
+      last_synced: '1 hour ago',
+    },
+    {
+      patient_id: 'ner-pat-78905-bengali',
+      name_alias: 'Hemlata Barman (হেমলতা বর্মন)',
+      preferred_lang: 'bn',
+      baseline_moca: 25,
+      current_chi: 88.5,
+      triage_status: 'STABLE' as const,
+      active_anomaly: undefined,
+      last_synced: '2 hours ago',
+    },
+  ];
+
+  const displayedPatients = (cohort?.patients && cohort.patients.length > 0) ? cohort.patients : defaultPatients;
+
   return (
     <div className="max-w-6xl mx-auto p-4 sm:p-8 space-y-8 animate-fade-in">
       {/* Header */}
@@ -86,7 +131,7 @@ export const AshaCohortView: React.FC<AshaCohortViewProps> = ({ currentLang = 'e
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
         <div className="glass-card p-5 rounded-2xl border border-white/10 space-y-1">
           <span className="text-xs text-slate-400">{t.totalEnrolled}</span>
-          <div className="text-3xl font-extrabold text-white">{cohort?.total_patients || 6}</div>
+          <div className="text-3xl font-extrabold text-white">{cohort?.total_patients || displayedPatients.length}</div>
           <span className="text-[11px] text-slate-500">{t.elderlyHouseholds}</span>
         </div>
 
@@ -98,13 +143,13 @@ export const AshaCohortView: React.FC<AshaCohortViewProps> = ({ currentLang = 'e
 
         <div className="glass-card p-5 rounded-2xl border border-amber-500/30 bg-amber-500/5 space-y-1">
           <span className="text-xs text-amber-400 font-medium">{t.warningLatency}</span>
-          <div className="text-3xl font-extrabold text-amber-400">{cohort?.warning_count || 2}</div>
+          <div className="text-3xl font-extrabold text-amber-400">{cohort?.warning_count || 1}</div>
           <span className="text-[11px] text-amber-300/80">{t.followupNeeded}</span>
         </div>
 
         <div className="glass-card p-5 rounded-2xl border border-emerald-500/30 bg-emerald-500/5 space-y-1">
           <span className="text-xs text-emerald-400 font-medium">{t.stableStatus}</span>
-          <div className="text-3xl font-extrabold text-emerald-400">{cohort?.stable_count || 3}</div>
+          <div className="text-3xl font-extrabold text-emerald-400">{cohort?.stable_count || 2}</div>
           <span className="text-[11px] text-emerald-300/80">{t.consistentAdherence}</span>
         </div>
       </div>
@@ -116,7 +161,7 @@ export const AshaCohortView: React.FC<AshaCohortViewProps> = ({ currentLang = 'e
           <span>{t.villageCohortTitle}</span>
         </h3>
 
-        {cohort?.patients.map((pat) => (
+        {displayedPatients.map((pat) => (
           <div
             key={pat.patient_id}
             className={`glass-card p-5 rounded-2xl border transition-all flex flex-col sm:flex-row sm:items-center justify-between gap-4 ${

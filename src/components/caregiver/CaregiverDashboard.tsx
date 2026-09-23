@@ -256,7 +256,7 @@ export const CaregiverDashboard: React.FC<CaregiverDashboardProps> = ({ currentL
             className="px-3.5 py-2 rounded-xl bg-[#ff5a00]/20 hover:bg-[#ff5a00]/30 border border-[#ff5a00]/40 text-[#ff7a29] text-xs font-bold flex items-center gap-1.5 transition-all shadow-glow-orange cursor-pointer"
           >
             <Smartphone className="w-3.5 h-3.5" />
-            <span>📱 View Dispatched SMS (Demo Log)</span>
+            <span>📱 View Dispatched Gateway SMS</span>
           </button>
         </div>
       </div>

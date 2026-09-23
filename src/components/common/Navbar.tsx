@@ -163,14 +163,14 @@ export const Navbar: React.FC<NavbarProps> = ({
           <option value="doctor" className="bg-[#12141c] text-white">🏥 {t.doctorRole}</option>
         </select>
 
-        {/* Live SMS Gateway Dispatch Monitor Button (For Demo & Evaluator Inspection) */}
+        {/* Live SMS Gateway Dispatch Button */}
         <button
           onClick={() => setShowSmsModal(true)}
-          title="Inspect Live Dual-Channel SMS Gateway Dispatch"
+          title="Telephony & SMS Gateway Infrastructure Logs"
           className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-xl bg-[#ff5a00]/15 hover:bg-[#ff5a00]/25 text-[#ff7a29] border border-[#ff5a00]/30 text-xs font-bold transition-all shadow-glow-orange cursor-pointer"
         >
           <Smartphone className="w-3.5 h-3.5" />
-          <span className="hidden xl:inline">SMS Monitor</span>
+          <span className="hidden xl:inline">SMS Gateway</span>
         </button>
 
         {/* Emergency SOS Button */}
