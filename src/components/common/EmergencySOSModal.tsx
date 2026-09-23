@@ -2,21 +2,26 @@ import React, { useState, useEffect } from 'react';
 import { AlertTriangle, PhoneCall, MapPin, CheckCircle2, X } from 'lucide-react';
 import { api } from '../../services/api';
 import { audio } from '../../services/audioService';
+import { Language, translations } from '../../services/i18n';
 
 interface EmergencySOSModalProps {
   isOpen: boolean;
   onClose: () => void;
   patientName?: string;
+  currentLang?: Language;
 }
 
 export const EmergencySOSModal: React.FC<EmergencySOSModalProps> = ({
   isOpen,
   onClose,
   patientName = 'Bonti Aita',
+  currentLang = 'en',
 }) => {
   const [countdown, setCountdown] = useState(3);
   const [dispatched, setDispatched] = useState(false);
   const [coords, setCoords] = useState({ lat: 26.1433, lng: 91.7898 }); // Kamrup, Assam
+
+  const t = translations[currentLang];
 
   useEffect(() => {
     if (!isOpen) {
@@ -83,13 +88,13 @@ export const EmergencySOSModal: React.FC<EmergencySOSModalProps> = ({
           </div>
 
           <h2 className="text-2xl sm:text-3xl font-bold text-white">
-            Emergency SOS Alert (জৰুৰীকালীন সতৰ্কবাণী)
+            {t.sosTitle}
           </h2>
 
           {!dispatched ? (
             <div className="space-y-4 py-2">
               <p className="text-slate-300 text-sm">
-                Dispatching emergency coordinates to registered family caregivers and assigned ASHA health worker in:
+                {t.sosDispatching}
               </p>
               <div className="text-5xl font-black text-red-500 tracking-wider">
                 {countdown}s
@@ -98,7 +103,7 @@ export const EmergencySOSModal: React.FC<EmergencySOSModalProps> = ({
                 onClick={onClose}
                 className="px-6 py-2.5 rounded-full bg-white/10 hover:bg-white/20 text-white font-semibold text-sm border border-white/20"
               >
-                Cancel Dispatch (বাতিল কৰক)
+                {t.cancelDispatch}
               </button>
             </div>
           ) : (
@@ -107,10 +112,10 @@ export const EmergencySOSModal: React.FC<EmergencySOSModalProps> = ({
                 <CheckCircle2 className="w-7 h-7 text-emerald-400 shrink-0" />
                 <div>
                   <div className="text-sm font-bold text-emerald-400">
-                    Dual-Channel Alert Dispatched!
+                    {t.alertDispatched}
                   </div>
                   <div className="text-xs text-slate-300">
-                    SMS with Google Maps GPS link sent to Family (+91 98765 43210) & ASHA Worker (+91 98765 43211).
+                    {t.alertDispatchedSub}
                   </div>
                 </div>
               </div>
@@ -119,7 +124,7 @@ export const EmergencySOSModal: React.FC<EmergencySOSModalProps> = ({
               <div className="p-3.5 rounded-xl bg-black/40 border border-white/5 flex items-center justify-between text-xs">
                 <span className="flex items-center gap-2 text-slate-400">
                   <MapPin className="w-4 h-4 text-[#ff5a00]" />
-                  GPS Coordinates:
+                  {t.gpsCoords}
                 </span>
                 <span className="font-mono text-slate-200">
                   {coords.lat.toFixed(4)}° N, {coords.lng.toFixed(4)}° E (Kamrup, Assam)
@@ -132,7 +137,7 @@ export const EmergencySOSModal: React.FC<EmergencySOSModalProps> = ({
                 className="w-full py-3.5 rounded-2xl bg-red-600 hover:bg-red-500 text-white font-bold flex items-center justify-center gap-2 shadow-lg transition-all"
               >
                 <PhoneCall className="w-5 h-5" />
-                <span>Call Emergency Ambulance (108)</span>
+                <span>{t.call108}</span>
               </a>
             </div>
           )}

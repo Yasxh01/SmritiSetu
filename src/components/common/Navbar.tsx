@@ -42,7 +42,7 @@ export const Navbar: React.FC<NavbarProps> = ({
           <span className="text-xl font-bold tracking-tight text-white flex items-center gap-1.5">
             SmritiSetu <span className="text-xs font-semibold px-2 py-0.5 rounded-full bg-[#ff5a00]/20 text-[#ff7a29] border border-[#ff5a00]/40">NER</span>
           </span>
-          <span className="text-[11px] text-slate-400 block -mt-0.5">স্মৃতিসেতু • AI Cognitive Care</span>
+          <span className="text-[11px] text-slate-400 block -mt-0.5">{t.appName} • AI Cognitive Care</span>
         </div>
       </div>
 
@@ -102,7 +102,7 @@ export const Navbar: React.FC<NavbarProps> = ({
         {/* Network / CRDT Sync Badge */}
         <div
           onClick={onManualSync}
-          title={isOnline ? 'Connected to Cloud' : 'Offline Mode (Local Storage)'}
+          title={isOnline ? t.syncOnline : t.offlineMode}
           className={`flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[11px] font-medium border cursor-pointer transition-all ${
             isOnline
               ? 'bg-emerald-500/10 text-emerald-400 border-emerald-500/30 hover:bg-emerald-500/20'
@@ -110,7 +110,7 @@ export const Navbar: React.FC<NavbarProps> = ({
           }`}
         >
           {isOnline ? <Wifi className="w-3.5 h-3.5" /> : <WifiOff className="w-3.5 h-3.5" />}
-          <span className="hidden sm:inline">{isOnline ? 'Online' : 'Offline'}</span>
+          <span className="hidden sm:inline">{isOnline ? t.online : t.offline}</span>
           {pendingSyncCount > 0 && (
             <span className="ml-1 px-1.5 py-0.2 rounded-full bg-[#ff5a00] text-white text-[9px] font-bold">
               {pendingSyncCount}
@@ -126,10 +126,11 @@ export const Navbar: React.FC<NavbarProps> = ({
             onChange={(e) => onLanguageChange(e.target.value as Language)}
             className="bg-transparent text-xs text-slate-200 outline-none cursor-pointer pr-1"
           >
+            <option value="en" className="bg-[#12141c] text-white">English (EN)</option>
+            <option value="hi" className="bg-[#12141c] text-white">हिन्दी (HI)</option>
             <option value="as" className="bg-[#12141c] text-white">অসমীয়া (AS)</option>
             <option value="bn" className="bg-[#12141c] text-white">বাংলা (BN)</option>
             <option value="brx" className="bg-[#12141c] text-white">बर' (BRX)</option>
-            <option value="en" className="bg-[#12141c] text-white">English (EN)</option>
           </select>
         </div>
 
@@ -139,10 +140,10 @@ export const Navbar: React.FC<NavbarProps> = ({
           onChange={(e) => onRoleChange(e.target.value as any)}
           className="bg-black/50 border border-[#ff5a00]/30 text-[#ff7a29] text-xs font-semibold rounded-xl px-2.5 py-1 outline-none cursor-pointer hidden md:block"
         >
-          <option value="patient" className="bg-[#12141c] text-white">👴 Patient View</option>
-          <option value="caregiver" className="bg-[#12141c] text-white">🛡️ Caregiver</option>
-          <option value="asha" className="bg-[#12141c] text-white">🩺 ASHA Worker</option>
-          <option value="doctor" className="bg-[#12141c] text-white">🏥 Doctor</option>
+          <option value="patient" className="bg-[#12141c] text-white">👴 {t.patientRole}</option>
+          <option value="caregiver" className="bg-[#12141c] text-white">🛡️ {t.caregiverRole}</option>
+          <option value="asha" className="bg-[#12141c] text-white">🩺 {t.ashaRole}</option>
+          <option value="doctor" className="bg-[#12141c] text-white">🏥 {t.doctorRole}</option>
         </select>
 
         {/* Emergency SOS Button */}
@@ -151,7 +152,7 @@ export const Navbar: React.FC<NavbarProps> = ({
           className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-red-600 hover:bg-red-500 text-white font-bold text-xs shadow-[0_0_15px_rgba(239,68,68,0.5)] transition-all active:scale-95 animate-pulse"
         >
           <AlertTriangle className="w-3.5 h-3.5 fill-white stroke-red-600" />
-          <span>SOS</span>
+          <span>{t.sosButton}</span>
         </button>
 
         {/* Exit / Switch Account */}

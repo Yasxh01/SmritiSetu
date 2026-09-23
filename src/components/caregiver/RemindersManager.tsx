@@ -3,21 +3,44 @@ import { Plus, Check, Clock, Droplets, Pill, Calendar, Heart, ShieldCheck } from
 import { api, ReminderItem } from '../../services/api';
 import { audio } from '../../services/audioService';
 import { offlineService } from '../../services/offlineStore';
+import { Language, translations } from '../../services/i18n';
 
-export const RemindersManager: React.FC = () => {
+interface RemindersManagerProps {
+  currentLang?: Language;
+}
+
+export const RemindersManager: React.FC<RemindersManagerProps> = ({ currentLang = 'en' }) => {
   const [reminders, setReminders] = useState<ReminderItem[]>([]);
   const [newTitle, setNewTitle] = useState('');
   const [newType, setNewType] = useState<'medication' | 'hydration' | 'daily_routine' | 'appointment'>('hydration');
   const [showAddModal, setShowAddModal] = useState(false);
 
+  const t = translations[currentLang];
+
   useEffect(() => {
     loadReminders();
-  }, []);
+  }, [currentLang]);
 
   const loadReminders = async () => {
     try {
       const data = await api.listReminders('ner-pat-78902-assamese');
-      setReminders(data);
+      // Localize titles of default preset reminders
+      const localized = data.map((r) => {
+        let title = r.title;
+        let desc = r.description;
+        if (r.reminder_type === 'medication' && r.title.includes('Donepezil')) {
+          title = t.donepezilTitle || r.title;
+          desc = t.donepezilDesc || r.description;
+        } else if (r.reminder_type === 'hydration') {
+          title = t.waterTitle || r.title;
+          desc = t.waterDesc || r.description;
+        } else if (r.reminder_type === 'daily_routine' && (r.title.includes('Namghar') || r.title.includes('Prayer'))) {
+          title = t.prayerTitle || r.title;
+          desc = t.prayerDesc || r.description;
+        }
+        return { ...r, title, description: desc };
+      });
+      setReminders(localized);
     } catch (e) {
       console.error(e);
     }
@@ -84,13 +107,13 @@ export const RemindersManager: React.FC = () => {
       <div className="flex flex-wrap items-center justify-between gap-4">
         <div>
           <span className="text-xs font-bold uppercase tracking-wider text-[#ff7a29] block">
-            Adherence & Routine Manager
+            {t.remindersHeader}
           </span>
           <h1 className="text-2xl sm:text-3xl font-bold text-white tracking-tight">
-            দৈনিক ঔষধ আৰু দিনলিপি (Daily Care Schedule)
+            {t.remindersTitle}
           </h1>
           <p className="text-slate-400 text-xs sm:text-sm">
-            Auditory and tactile cues scheduled for elderly patients in rural Assam.
+            {t.remindersSub}
           </p>
         </div>
 
@@ -99,7 +122,7 @@ export const RemindersManager: React.FC = () => {
           className="btn-primary px-5 py-2.5 text-xs font-bold flex items-center gap-1.5 shadow-glow-orange"
         >
           <Plus className="w-4 h-4" />
-          <span>Add Reminder (নতুন সূচী)</span>
+          <span>{t.addReminder}</span>
         </button>
       </div>
 
@@ -123,7 +146,13 @@ export const RemindersManager: React.FC = () => {
                 <div className="flex items-center gap-2">
                   <h3 className="text-base font-bold text-white">{item.title}</h3>
                   <span className="text-[10px] uppercase font-bold px-2 py-0.5 rounded-full bg-white/5 text-slate-300 border border-white/10">
-                    {item.reminder_type}
+                    {item.reminder_type === 'hydration'
+                      ? t.hydrationCat
+                      : item.reminder_type === 'medication'
+                      ? t.medicationCat
+                      : item.reminder_type === 'daily_routine'
+                      ? t.routineCat
+                      : t.appointmentCat}
                   </span>
                 </div>
                 {item.description && (
@@ -131,7 +160,7 @@ export const RemindersManager: React.FC = () => {
                 )}
                 <span className="text-[11px] text-slate-500 flex items-center gap-1">
                   <Clock className="w-3 h-3" />
-                  Scheduled: {new Date(item.scheduled_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                  {t.scheduledAt}: {new Date(item.scheduled_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
                 </span>
               </div>
             </div>
@@ -140,7 +169,7 @@ export const RemindersManager: React.FC = () => {
               {item.status === 'completed' ? (
                 <div className="flex items-center gap-1.5 text-xs font-semibold text-emerald-400 bg-emerald-500/10 border border-emerald-500/30 px-3.5 py-1.5 rounded-full">
                   <ShieldCheck className="w-4 h-4" />
-                  <span>Confirmed by Caregiver</span>
+                  <span>{t.caregiverVerified}</span>
                 </div>
               ) : (
                 <button
@@ -148,7 +177,7 @@ export const RemindersManager: React.FC = () => {
                   className="px-5 py-2 rounded-full bg-[#ff5a00] hover:bg-[#ff7300] text-white text-xs font-bold flex items-center gap-1.5 shadow-glow-orange transition-all"
                 >
                   <Check className="w-4 h-4 stroke-[3]" />
-                  <span>Mark Done (গ্ৰহণ কৰিলোঁ)</span>
+                  <span>{t.markDone}</span>
                 </button>
               )}
             </div>
@@ -160,28 +189,28 @@ export const RemindersManager: React.FC = () => {
       {showAddModal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-md animate-fade-in">
           <div className="glass-card max-w-md w-full rounded-3xl p-6 sm:p-8 border border-white/10 space-y-4">
-            <h3 className="text-xl font-bold text-white">Create New Schedule Item</h3>
+            <h3 className="text-xl font-bold text-white">{t.createScheduleItem}</h3>
 
             <form onSubmit={handleCreate} className="space-y-4">
               <div>
-                <label className="text-xs text-slate-400 block mb-1">Reminder Category</label>
+                <label className="text-xs text-slate-400 block mb-1">{t.category}</label>
                 <select
                   value={newType}
                   onChange={(e) => setNewType(e.target.value as any)}
                   className="input-field w-full p-2.5 rounded-xl text-xs"
                 >
-                  <option value="hydration" className="bg-[#12141c]">💧 Hydration (পানী খোৱা)</option>
-                  <option value="medication" className="bg-[#12141c]">💊 Medication (ঔষধ)</option>
-                  <option value="daily_routine" className="bg-[#12141c]">☀️ Daily Routine (দিনলিপি)</option>
-                  <option value="appointment" className="bg-[#12141c]">🏥 Doctor Visit (চিকিৎসকৰ পৰামৰ্শ)</option>
+                  <option value="hydration" className="bg-[#12141c]">{t.hydrationCat}</option>
+                  <option value="medication" className="bg-[#12141c]">{t.medicationCat}</option>
+                  <option value="daily_routine" className="bg-[#12141c]">{t.routineCat}</option>
+                  <option value="appointment" className="bg-[#12141c]">{t.appointmentCat}</option>
                 </select>
               </div>
 
               <div>
-                <label className="text-xs text-slate-400 block mb-1">Activity Title</label>
+                <label className="text-xs text-slate-400 block mb-1">{t.activityTitle}</label>
                 <input
                   type="text"
-                  placeholder="e.g. Afternoon Tea & Memory Puzzle"
+                  placeholder={t.activityTitle}
                   value={newTitle}
                   onChange={(e) => setNewTitle(e.target.value)}
                   required
@@ -195,13 +224,13 @@ export const RemindersManager: React.FC = () => {
                   onClick={() => setShowAddModal(false)}
                   className="w-1/2 py-2.5 rounded-full bg-white/10 text-xs font-semibold text-white"
                 >
-                  Cancel
+                  {t.cancel}
                 </button>
                 <button
                   type="submit"
                   className="btn-primary w-1/2 py-2.5 text-xs font-bold"
                 >
-                  Save Schedule
+                  {t.saveSchedule}
                 </button>
               </div>
             </form>

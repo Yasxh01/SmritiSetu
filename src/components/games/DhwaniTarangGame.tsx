@@ -4,15 +4,14 @@ import { ArrowLeft, Play, Volume2, RotateCcw, CheckCircle2, Trophy, Sparkles } f
 import { audio } from '../../services/audioService';
 import { offlineService } from '../../services/offlineStore';
 import { api } from '../../services/api';
+import { Language, translations } from '../../services/i18n';
 
-const INSTRUMENTS = [
-  { id: 'dhol', name: 'Bihu Dhol (ঢোল)', icon: '🥁', color: 'from-amber-600 to-amber-800' },
-  { id: 'tokari', name: 'Tokari String (টোকোৰী)', icon: '🪕', color: 'from-orange-600 to-orange-800' },
-  { id: 'rain', name: 'Monsoon Rain (বৰষুণ)', icon: '🌧️', color: 'from-sky-600 to-sky-800' },
-  { id: 'flute', name: 'Bamboo Flute (বাঁহী)', icon: '🪈', color: 'from-emerald-600 to-emerald-800' },
-];
+interface DhwaniTarangGameProps {
+  onBack: () => void;
+  currentLang?: Language;
+}
 
-export const DhwaniTarangGame: React.FC<{ onBack: () => void }> = ({ onBack }) => {
+export const DhwaniTarangGame: React.FC<DhwaniTarangGameProps> = ({ onBack, currentLang = 'en' }) => {
   const [sequence, setSequence] = useState<string[]>([]);
   const [playerInput, setPlayerInput] = useState<string[]>([]);
   const [isPlayingSeq, setIsPlayingSeq] = useState(false);
@@ -20,6 +19,15 @@ export const DhwaniTarangGame: React.FC<{ onBack: () => void }> = ({ onBack }) =
   const [score, setScore] = useState(0);
   const [gameStarted, setGameStarted] = useState(false);
   const [message, setMessage] = useState<string | null>(null);
+
+  const t = translations[currentLang];
+
+  const instruments = [
+    { id: 'dhol', name: t.dholName || 'Bihu Dhol', icon: '🥁', color: 'from-amber-600 to-amber-800' },
+    { id: 'tokari', name: t.tokariName || 'Tokari String', icon: '🪕', color: 'from-orange-600 to-orange-800' },
+    { id: 'rain', name: t.rainName || 'Monsoon Rain', icon: '🌧️', color: 'from-sky-600 to-sky-800' },
+    { id: 'flute', name: t.fluteName || 'Bamboo Flute', icon: '🪈', color: 'from-emerald-600 to-emerald-800' },
+  ];
 
   const playInstrumentSound = (id: string) => {
     if (id === 'dhol') audio.playDholBeat(true);
@@ -50,7 +58,7 @@ export const DhwaniTarangGame: React.FC<{ onBack: () => void }> = ({ onBack }) =
         playInstrumentSound(item);
         if (idx === newSeq.length - 1) {
           setIsPlayingSeq(false);
-          setMessage('এতিয়া আপোনাৰ পাল! (Now your turn to repeat the sounds!)');
+          setMessage(t.nowYourTurn);
         }
       }, (idx + 1) * 750);
     });
@@ -67,7 +75,7 @@ export const DhwaniTarangGame: React.FC<{ onBack: () => void }> = ({ onBack }) =
 
     // Check correctness
     if (updated[currentIndex] !== sequence[currentIndex]) {
-      setMessage('ভুল হৈছে, একো কথা নাই! (Try again calmly, no worries!)');
+      setMessage(t.soundTryAgain);
       audio.playCalmingTone();
       setTimeout(() => {
         startNewRound(level);
@@ -79,7 +87,7 @@ export const DhwaniTarangGame: React.FC<{ onBack: () => void }> = ({ onBack }) =
     if (updated.length === sequence.length) {
       audio.playSuccessChord();
       confetti({ particleCount: 50, spread: 60, origin: { y: 0.7 } });
-      setMessage('অসম্ভৱ সুন্দৰ! (Brilliant rhythm memory!)');
+      setMessage(t.brilliantRhythm);
       setScore((s) => s + 100);
 
       // Record telemetry
@@ -108,12 +116,12 @@ export const DhwaniTarangGame: React.FC<{ onBack: () => void }> = ({ onBack }) =
           className="flex items-center gap-2 text-slate-300 hover:text-white px-3 py-1.5 rounded-xl hover:bg-white/5 text-sm font-semibold transition-all"
         >
           <ArrowLeft className="w-4 h-4" />
-          <span>Back (ঘূৰি যাওক)</span>
+          <span>{t.backToGames}</span>
         </button>
 
         <div className="flex items-center gap-4 text-xs sm:text-sm font-medium">
-          <span>Level: <strong className="text-white">{level}</strong></span>
-          <span>Score: <strong className="text-[#ff7a29]">{score}</strong></span>
+          <span>{t.level}: <strong className="text-white">{level}</strong></span>
+          <span>{t.score}: <strong className="text-[#ff7a29]">{score}</strong></span>
         </div>
       </div>
 
@@ -121,10 +129,10 @@ export const DhwaniTarangGame: React.FC<{ onBack: () => void }> = ({ onBack }) =
       <div className="glass-card p-8 rounded-3xl border border-white/10 text-center space-y-6">
         <div className="space-y-2">
           <h2 className="text-2xl sm:text-3xl font-bold text-white">
-            ধ্বনি তৰংগ (Dhwani Tarang)
+            {t.dhwaniTitle}
           </h2>
           <p className="text-slate-400 text-sm max-w-md mx-auto">
-            Listen to traditional folk rhythms and repeat the sequence in order.
+            {t.dhwaniDesc}
           </p>
         </div>
 
@@ -135,7 +143,7 @@ export const DhwaniTarangGame: React.FC<{ onBack: () => void }> = ({ onBack }) =
               className="btn-primary px-8 py-4 text-base font-bold flex items-center justify-center gap-2 mx-auto shadow-glow-orange"
             >
               <Play className="w-5 h-5 fill-white" />
-              <span>Start Sound Game (শব্দ শুনক)</span>
+              <span>{t.startSoundGame}</span>
             </button>
           </div>
         ) : (
@@ -148,7 +156,7 @@ export const DhwaniTarangGame: React.FC<{ onBack: () => void }> = ({ onBack }) =
 
             {/* Instrument Buttons Grid */}
             <div className="grid grid-cols-2 gap-4 max-w-md mx-auto">
-              {INSTRUMENTS.map((inst) => (
+              {instruments.map((inst) => (
                 <button
                   key={inst.id}
                   onClick={() => handleTileClick(inst.id)}
@@ -168,7 +176,7 @@ export const DhwaniTarangGame: React.FC<{ onBack: () => void }> = ({ onBack }) =
               disabled={isPlayingSeq}
               className="text-xs text-slate-400 hover:text-white underline pt-2 block mx-auto"
             >
-              Replay Sound Sequence (পুনৰ শুনক)
+              {t.replaySequence}
             </button>
           </div>
         )}

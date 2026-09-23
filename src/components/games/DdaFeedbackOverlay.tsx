@@ -1,18 +1,22 @@
 import React from 'react';
 import { Heart, Sparkles, Volume2, Shield } from 'lucide-react';
 import { audio } from '../../services/audioService';
+import { Language, translations } from '../../services/i18n';
 
 interface DdaFeedbackOverlayProps {
   isOpen: boolean;
   onDismiss: () => void;
-  lang?: string;
+  currentLang?: Language;
 }
 
 export const DdaFeedbackOverlay: React.FC<DdaFeedbackOverlayProps> = ({
   isOpen,
   onDismiss,
+  currentLang = 'en',
 }) => {
   if (!isOpen) return null;
+
+  const t = translations[currentLang];
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/85 backdrop-blur-lg animate-fade-in">
@@ -24,13 +28,13 @@ export const DdaFeedbackOverlay: React.FC<DdaFeedbackOverlayProps> = ({
 
         <div className="space-y-2">
           <span className="text-xs uppercase tracking-widest text-[#ff7a29] font-bold">
-            AI Anxiety-Relief Guard Active
+            {t.anxietyBadge}
           </span>
           <h3 className="text-2xl font-bold text-white">
-            অকণমান জিৰণি লওক (Take a Gentle Breath)
+            {t.anxietyTitle}
           </h3>
           <p className="text-slate-300 text-sm leading-relaxed">
-            Our AI noticed you took extra time on this task. We have automatically adjusted this game to a calmer, easier pace.
+            {t.anxietyDesc}
           </p>
         </div>
 
@@ -40,14 +44,14 @@ export const DdaFeedbackOverlay: React.FC<DdaFeedbackOverlayProps> = ({
           className="px-4 py-2 rounded-xl bg-white/5 hover:bg-white/10 border border-white/10 text-xs text-slate-300 flex items-center justify-center gap-2 mx-auto"
         >
           <Volume2 className="w-4 h-4 text-[#ff5a00]" />
-          <span>Play Calming River Chime (শান্ত ধ্বনি)</span>
+          <span>{t.playCalmChime}</span>
         </button>
 
         <button
           onClick={onDismiss}
           className="btn-primary w-full py-3.5 text-sm font-bold tracking-wide"
         >
-          Continue at Relaxed Pace (সহজ স্তৰত আৰম্ভ কৰক)
+          {t.continueRelaxed}
         </button>
       </div>
     </div>

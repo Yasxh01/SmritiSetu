@@ -2,10 +2,17 @@ import React, { useState, useEffect } from 'react';
 import { AreaChart, Area, XAxis, YAxis, Tooltip, ResponsiveContainer } from 'recharts';
 import { Activity, AlertTriangle, ShieldCheck, HeartPulse, Clock, FileText, Phone, Sparkles } from 'lucide-react';
 import { api, ChiData } from '../../services/api';
+import { Language, translations } from '../../services/i18n';
 
-export const CaregiverDashboard: React.FC = () => {
+interface CaregiverDashboardProps {
+  currentLang?: Language;
+}
+
+export const CaregiverDashboard: React.FC<CaregiverDashboardProps> = ({ currentLang = 'en' }) => {
   const [chiData, setChiData] = useState<ChiData | null>(null);
   const [loading, setLoading] = useState(true);
+
+  const t = translations[currentLang];
 
   useEffect(() => {
     const fetchChi = async () => {
@@ -35,13 +42,13 @@ export const CaregiverDashboard: React.FC = () => {
       <div className="flex flex-wrap items-center justify-between gap-4">
         <div>
           <span className="text-xs font-bold uppercase tracking-wider text-[#ff7a29] block">
-            Longitudinal Clinical Analytics
+            {t.caregiverHeader}
           </span>
           <h1 className="text-2xl sm:text-3xl font-bold text-white tracking-tight">
-            Cognitive Health Index (CHI) Dashboard
+            {t.chiTitle}
           </h1>
           <p className="text-slate-400 text-xs sm:text-sm">
-            Patient: <strong className="text-white">Bonti Aita (বন্টি আইতা)</strong> • ID: <code className="text-slate-300">ner-pat-78902-assamese</code> • Kamrup, Assam
+            {t.patientLabel}
           </p>
         </div>
 
@@ -51,14 +58,14 @@ export const CaregiverDashboard: React.FC = () => {
             className="px-4 py-2 rounded-xl bg-white/5 hover:bg-white/10 border border-white/10 text-xs font-semibold text-slate-200 flex items-center gap-1.5"
           >
             <FileText className="w-4 h-4 text-emerald-400" />
-            <span>Export FHIR JSON</span>
+            <span>{t.exportFhir}</span>
           </button>
           <a
             href="tel:+919876543211"
             className="px-4 py-2 rounded-xl bg-[#ff5a00]/20 hover:bg-[#ff5a00]/30 border border-[#ff5a00]/40 text-xs font-bold text-[#ff7a29] flex items-center gap-1.5"
           >
             <Phone className="w-4 h-4" />
-            <span>Call ASHA Worker</span>
+            <span>{t.callAsha}</span>
           </a>
         </div>
       </div>
@@ -68,7 +75,7 @@ export const CaregiverDashboard: React.FC = () => {
         {/* Metric 1: Current CHI */}
         <div className="glass-card p-5 rounded-2xl border border-white/10 space-y-2">
           <div className="flex justify-between items-center text-xs text-slate-400">
-            <span>Current CHI Score</span>
+            <span>{t.currentChiScore}</span>
             <HeartPulse className="w-4 h-4 text-[#ff5a00]" />
           </div>
           <div className="flex items-baseline gap-2">
@@ -77,13 +84,13 @@ export const CaregiverDashboard: React.FC = () => {
             </span>
             <span className="text-xs text-emerald-400 font-semibold">/ 100</span>
           </div>
-          <span className="text-[11px] text-slate-400 block">Stable post-intervention</span>
+          <span className="text-[11px] text-slate-400 block">{t.stablePostIntervention}</span>
         </div>
 
         {/* Metric 2: Motor Reaction Time */}
         <div className="glass-card p-5 rounded-2xl border border-white/10 space-y-2">
           <div className="flex justify-between items-center text-xs text-slate-400">
-            <span>Mean Latency (μ)</span>
+            <span>{t.meanLatency}</span>
             <Clock className="w-4 h-4 text-amber-400" />
           </div>
           <div className="flex items-baseline gap-2">
@@ -93,34 +100,34 @@ export const CaregiverDashboard: React.FC = () => {
             <span className="text-xs text-slate-400">ms</span>
           </div>
           <span className="text-[11px] text-slate-400 block">
-            σ = {chiData?.rolling_latency_ms.std_dev || 140}ms (Z-normalized)
+            σ = {chiData?.rolling_latency_ms.std_dev || 140}ms ({t.latencyZ})
           </span>
         </div>
 
         {/* Metric 3: Adherence Rate */}
         <div className="glass-card p-5 rounded-2xl border border-white/10 space-y-2">
           <div className="flex justify-between items-center text-xs text-slate-400">
-            <span>Medicine Adherence</span>
+            <span>{t.medAdherence}</span>
             <ShieldCheck className="w-4 h-4 text-emerald-400" />
           </div>
           <div className="flex items-baseline gap-2">
             <span className="text-3xl font-extrabold text-emerald-400">96.7%</span>
           </div>
-          <span className="text-[11px] text-slate-400 block">Donepezil 5mg confirmed daily</span>
+          <span className="text-[11px] text-slate-400 block">{t.adherenceSubtitle}</span>
         </div>
 
         {/* Metric 4: Anomaly Status */}
         <div className="glass-card p-5 rounded-2xl border border-white/10 space-y-2">
           <div className="flex justify-between items-center text-xs text-slate-400">
-            <span>Cognitive Anomaly Status</span>
+            <span>{t.anomalyStatus}</span>
             <AlertTriangle className="w-4 h-4 text-[#ff5a00]" />
           </div>
           <div className="flex items-baseline gap-2">
             <span className="text-sm font-bold text-amber-400">
-              Resolved (Day 21 Alert)
+              {t.anomalyResolved}
             </span>
           </div>
-          <span className="text-[11px] text-slate-400 block">Dual-channel SMS dispatched</span>
+          <span className="text-[11px] text-slate-400 block">{t.dualChannelSent}</span>
         </div>
       </div>
 
@@ -130,21 +137,21 @@ export const CaregiverDashboard: React.FC = () => {
           <div>
             <h3 className="text-lg font-bold text-white flex items-center gap-2">
               <Activity className="w-5 h-5 text-[#ff5a00]" />
-              <span>Rolling 30-Day Cognitive Health Index (CHI) Trajectory</span>
+              <span>{t.chiTrajectory}</span>
             </h3>
             <p className="text-xs text-slate-400">
-              Formula: CHI = 0.35·S_mem + 0.30·S_exec + 0.20·S_lat + 0.15·S_adh
+              {t.chiFormula}
             </p>
           </div>
 
           <div className="flex items-center gap-4 text-xs">
             <span className="flex items-center gap-1.5 text-slate-300">
               <span className="w-3 h-3 rounded-full bg-[#ff5a00]" />
-              <span>Baseline Stable</span>
+              <span>{t.baselineStable}</span>
             </span>
             <span className="flex items-center gap-1.5 text-slate-300">
               <span className="w-3 h-3 rounded-full bg-red-500 animate-pulse" />
-              <span>Day 21 Decline Event</span>
+              <span>{t.day21Decline}</span>
             </span>
           </div>
         </div>
@@ -191,13 +198,13 @@ export const CaregiverDashboard: React.FC = () => {
           </div>
           <div className="space-y-1">
             <div className="text-sm font-bold text-white flex items-center gap-2">
-              <span>Day 21 Rapid Cognitive Decline Detected</span>
+              <span>{t.declineDetected}</span>
               <span className="text-[10px] px-2 py-0.5 rounded-full bg-red-600/30 text-red-400 font-bold border border-red-500/30">
-                CRITICAL
+                {t.criticalBadge}
               </span>
             </div>
             <p className="text-xs text-slate-300">
-              CHI dropped &gt;15% in 72 hours (82.0 → 52.0). Automated SMS alert dispatched to ASHA Worker (+91 98765 43211) for home visit.
+              {t.declineDesc}
             </p>
           </div>
         </div>
@@ -206,7 +213,7 @@ export const CaregiverDashboard: React.FC = () => {
           onClick={() => alert('Detailed clinical incident logs verified. Patient stabilized on Day 24.')}
           className="px-4 py-2 rounded-xl bg-white/10 hover:bg-white/20 text-white text-xs font-semibold shrink-0"
         >
-          View Incident Log
+          {t.viewIncidentLog}
         </button>
       </div>
     </div>

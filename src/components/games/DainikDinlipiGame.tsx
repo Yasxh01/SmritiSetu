@@ -3,22 +3,39 @@ import confetti from 'canvas-confetti';
 import { ArrowLeft, CheckCircle2, RotateCcw, ListOrdered, Calendar } from 'lucide-react';
 import { audio } from '../../services/audioService';
 import { offlineService } from '../../services/offlineStore';
+import { Language, translations } from '../../services/i18n';
 
-const ROUTINE_STEPS = [
-  { id: 'step-1', order: 1, title: 'পুৱাৰ চাহ (Morning Tea)', icon: '☕', time: '7:00 AM' },
-  { id: 'step-2', order: 2, title: 'নামঘৰ প্ৰাৰ্থনা (Morning Prayer)', icon: '🪔', time: '8:00 AM' },
-  { id: 'step-3', order: 3, title: 'ঔষধ আৰু পানী (Morning Medicine)', icon: '💊', time: '8:30 AM' },
-  { id: 'step-4', order: 4, title: 'শাক-পাচলি বাগিচা / পদব্ৰজ (Garden Walk)', icon: '🌿', time: '9:30 AM' },
+interface RoutineStep {
+  id: string;
+  order: number;
+  title: string;
+  icon: string;
+  time: string;
+}
+
+const getRoutineSteps = (t: Record<string, string>): RoutineStep[] => [
+  { id: 'step-1', order: 1, title: t.morningTea || 'Morning Tea (7:00 AM)', icon: '☕', time: '7:00 AM' },
+  { id: 'step-2', order: 2, title: t.morningPrayer || 'Morning Prayer (8:00 AM)', icon: '🪔', time: '8:00 AM' },
+  { id: 'step-3', order: 3, title: t.morningMed || 'Morning Medicine (8:30 AM)', icon: '💊', time: '8:30 AM' },
+  { id: 'step-4', order: 4, title: t.gardenWalk || 'Garden Walk (9:30 AM)', icon: '🌿', time: '9:30 AM' },
 ];
 
-export const DainikDinlipiGame: React.FC<{ onBack: () => void }> = ({ onBack }) => {
-  const [shuffled, setShuffled] = useState(() =>
-    [...ROUTINE_STEPS].sort(() => Math.random() - 0.5)
+interface DainikDinlipiGameProps {
+  onBack: () => void;
+  currentLang?: Language;
+}
+
+export const DainikDinlipiGame: React.FC<DainikDinlipiGameProps> = ({ onBack, currentLang = 'en' }) => {
+  const t = translations[currentLang];
+  const steps = getRoutineSteps(t);
+
+  const [shuffled, setShuffled] = useState<RoutineStep[]>(() =>
+    [...steps].sort(() => Math.random() - 0.5)
   );
-  const [placed, setPlaced] = useState<typeof ROUTINE_STEPS>([]);
+  const [placed, setPlaced] = useState<RoutineStep[]>([]);
   const [isSuccess, setIsSuccess] = useState(false);
 
-  const handleSelect = async (step: (typeof ROUTINE_STEPS)[0]) => {
+  const handleSelect = async (step: RoutineStep) => {
     const nextOrder = placed.length + 1;
 
     if (step.order === nextOrder) {
@@ -27,7 +44,7 @@ export const DainikDinlipiGame: React.FC<{ onBack: () => void }> = ({ onBack }) 
       setPlaced(newPlaced);
       setShuffled((prev) => prev.filter((s) => s.id !== step.id));
 
-      if (newPlaced.length === ROUTINE_STEPS.length) {
+      if (newPlaced.length === steps.length) {
         audio.playSuccessChord();
         confetti({ particleCount: 70, spread: 70, origin: { y: 0.6 } });
         setIsSuccess(true);
@@ -48,7 +65,7 @@ export const DainikDinlipiGame: React.FC<{ onBack: () => void }> = ({ onBack }) 
   };
 
   const reset = () => {
-    setShuffled([...ROUTINE_STEPS].sort(() => Math.random() - 0.5));
+    setShuffled([...steps].sort(() => Math.random() - 0.5));
     setPlaced([]);
     setIsSuccess(false);
   };
@@ -61,19 +78,19 @@ export const DainikDinlipiGame: React.FC<{ onBack: () => void }> = ({ onBack }) 
           className="flex items-center gap-2 text-slate-300 hover:text-white px-3 py-1.5 rounded-xl hover:bg-white/5 text-sm font-semibold transition-all"
         >
           <ArrowLeft className="w-4 h-4" />
-          <span>Back (ঘূৰি যাওক)</span>
+          <span>{t.backToGames}</span>
         </button>
 
-        <span className="text-xs font-semibold text-slate-400">Executive Planning Recall</span>
+        <span className="text-xs font-semibold text-slate-400">{t.routineRecall}</span>
       </div>
 
       <div className="glass-card p-8 rounded-3xl border border-white/10 space-y-6 text-center">
         <div className="space-y-2">
           <h2 className="text-2xl sm:text-3xl font-bold text-white">
-            দৈনিক দিনলিপি (Daily Routine Sequencing)
+            {t.dinlipiTitle}
           </h2>
           <p className="text-slate-300 text-sm max-w-md mx-auto">
-            Tap the activities in chronological order from morning to afternoon.
+            {t.dinlipiDesc}
           </p>
         </div>
 
@@ -96,7 +113,7 @@ export const DainikDinlipiGame: React.FC<{ onBack: () => void }> = ({ onBack }) 
                     <span className="text-xs font-bold leading-tight line-clamp-2">{item.title}</span>
                   </>
                 ) : (
-                  <span className="text-xs font-semibold">Step {num}</span>
+                  <span className="text-xs font-semibold">{t.step} {num}</span>
                 )}
               </div>
             );
@@ -107,7 +124,7 @@ export const DainikDinlipiGame: React.FC<{ onBack: () => void }> = ({ onBack }) 
         {!isSuccess ? (
           <div className="space-y-3 pt-4">
             <span className="text-xs text-slate-400 font-medium block">
-              Which activity comes next? (ইয়াৰ পিছত কোনটো কাম হ’ব?)
+              {t.whichNext}
             </span>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 max-w-lg mx-auto">
               {shuffled.map((item) => (
@@ -128,10 +145,10 @@ export const DainikDinlipiGame: React.FC<{ onBack: () => void }> = ({ onBack }) 
         ) : (
           <div className="py-6 space-y-4 animate-fade-in">
             <CheckCircle2 className="w-16 h-16 text-emerald-400 mx-auto" />
-            <h3 className="text-2xl font-bold text-white">দৈনিক দিনলিপি সম্পূৰ্ণ হ’ল!</h3>
-            <p className="text-slate-400 text-sm">Excellent routine recall and episodic sequencing.</p>
+            <h3 className="text-2xl font-bold text-white">{t.routineComplete}</h3>
+            <p className="text-slate-400 text-sm">{t.routinePraise}</p>
             <button onClick={reset} className="btn-primary px-8 py-3 text-sm font-bold mx-auto">
-              Play Again
+              {t.playAgain}
             </button>
           </div>
         )}

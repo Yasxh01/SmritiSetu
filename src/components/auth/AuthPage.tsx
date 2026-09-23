@@ -1,15 +1,16 @@
 import React, { useState } from 'react';
-import { Brain, User, Mail, Lock, Phone, ArrowRight, ShieldCheck, Sparkles, HeartPulse, Activity } from 'lucide-react';
+import { Brain, User, Mail, Lock, Phone, ArrowRight, ShieldCheck, Sparkles, HeartPulse, Activity, Globe } from 'lucide-react';
 import { NeuralBrainCanvas } from '../common/NeuralBrainCanvas';
 import { Language, translations } from '../../services/i18n';
 import { api } from '../../services/api';
 
 interface AuthPageProps {
   currentLang: Language;
+  onLanguageChange?: (lang: Language) => void;
   onLoginSuccess: (user: any, role: 'patient' | 'caregiver' | 'asha' | 'doctor') => void;
 }
 
-export const AuthPage: React.FC<AuthPageProps> = ({ currentLang, onLoginSuccess }) => {
+export const AuthPage: React.FC<AuthPageProps> = ({ currentLang, onLanguageChange, onLoginSuccess }) => {
   const [isSignUp, setIsSignUp] = useState(true);
   const [fullName, setFullName] = useState('');
   const [emailOrPhone, setEmailOrPhone] = useState('+919876543210');
@@ -69,6 +70,24 @@ export const AuthPage: React.FC<AuthPageProps> = ({ currentLang, onLoginSuccess 
 
   return (
     <div className="min-h-screen bg-[#07080c] text-slate-100 flex flex-col justify-center px-4 sm:px-6 lg:px-12 py-10 relative overflow-hidden">
+      {/* Top Bar for Language Switcher on Auth Screen */}
+      {onLanguageChange && (
+        <div className="absolute top-6 right-6 z-20 flex items-center bg-black/50 border border-white/10 rounded-xl px-3 py-1.5 backdrop-blur-md">
+          <Globe className="w-4 h-4 text-slate-400 mr-2" />
+          <select
+            value={currentLang}
+            onChange={(e) => onLanguageChange(e.target.value as Language)}
+            className="bg-transparent text-xs text-slate-200 outline-none cursor-pointer pr-1"
+          >
+            <option value="en" className="bg-[#12141c] text-white">English (EN)</option>
+            <option value="hi" className="bg-[#12141c] text-white">हिन्दी (HI)</option>
+            <option value="as" className="bg-[#12141c] text-white">অসমীয়া (AS)</option>
+            <option value="bn" className="bg-[#12141c] text-white">বাংলা (BN)</option>
+            <option value="brx" className="bg-[#12141c] text-white">बर' (BRX)</option>
+          </select>
+        </div>
+      )}
+
       {/* Background radial gradient glow */}
       <div className="absolute top-1/4 left-1/4 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-[#ff5a00]/10 rounded-full blur-[140px] pointer-events-none" />
       <div className="absolute bottom-10 right-1/4 w-[500px] h-[500px] bg-[#ff8c00]/05 rounded-full blur-[150px] pointer-events-none" />
@@ -82,7 +101,7 @@ export const AuthPage: React.FC<AuthPageProps> = ({ currentLang, onLoginSuccess 
               <Brain className="w-7 h-7 text-white stroke-[2.5]" />
             </div>
             <span className="text-3xl font-extrabold tracking-tight text-white">
-              SmritiSetu <span className="text-sm font-semibold text-[#ff6f00] px-2.5 py-0.5 rounded-full bg-[#ff5a00]/15 border border-[#ff5a00]/30 ml-1">NER</span>
+              {t.appName} <span className="text-sm font-semibold text-[#ff6f00] px-2.5 py-0.5 rounded-full bg-[#ff5a00]/15 border border-[#ff5a00]/30 ml-1">NER</span>
             </span>
           </div>
 
@@ -93,32 +112,32 @@ export const AuthPage: React.FC<AuthPageProps> = ({ currentLang, onLoginSuccess 
             {/* Floating Telemetry Badges */}
             <div className="absolute top-6 left-2 glass-card px-3 py-1.5 rounded-xl border border-white/10 flex items-center gap-2 shadow-lg animate-pulse">
               <Activity className="w-3.5 h-3.5 text-[#ff7a29]" />
-              <span className="text-[11px] font-semibold text-slate-300">LOINC 72172-0 Observation</span>
+              <span className="text-[11px] font-semibold text-slate-300">{t.loincBadge}</span>
             </div>
 
             <div className="absolute bottom-6 right-2 glass-card px-3 py-1.5 rounded-xl border border-white/10 flex items-center gap-2 shadow-lg">
               <ShieldCheck className="w-3.5 h-3.5 text-emerald-400" />
-              <span className="text-[11px] font-semibold text-slate-300">Offline-First CRDT &lt;50 KB</span>
+              <span className="text-[11px] font-semibold text-slate-300">{t.crdtBadge}</span>
             </div>
           </div>
 
           {/* Headline directly from user reference mockup */}
           <div className="space-y-3">
             <h1 className="text-3xl sm:text-4xl lg:text-5xl font-extrabold tracking-tight leading-[1.18] text-white">
-              Strengthening cognitive pathways,<br />
+              {t.tagline1}<br />
               <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#ff5a00] via-[#ff7700] to-[#ff9e00] text-glow-orange">
-                one memory at a time.
+                {t.tagline2}
               </span>
             </h1>
             <p className="text-slate-400 text-sm sm:text-base max-w-xl leading-relaxed">
-              An AI-powered cognitive gaming and memory assistance platform designed exclusively for the cultural heritage of the North Eastern Region.
+              {t.subtagline}
             </p>
           </div>
 
           {/* Quick Demo Persona Shortcuts */}
           <div className="pt-2">
             <span className="text-xs uppercase tracking-wider text-slate-500 font-semibold block mb-2">
-              Instant Persona Switcher (For Evaluation):
+              {t.demoShortcuts}
             </span>
             <div className="flex flex-wrap gap-2.5">
               <button
@@ -126,21 +145,21 @@ export const AuthPage: React.FC<AuthPageProps> = ({ currentLang, onLoginSuccess 
                 onClick={() => handleQuickDemo('patient')}
                 className="px-3.5 py-1.5 rounded-xl text-xs font-semibold bg-white/5 hover:bg-[#ff5a00]/20 hover:border-[#ff5a00]/40 border border-white/10 text-slate-200 transition-all flex items-center gap-1.5"
               >
-                <span>👴 Patient Kiosk</span>
+                <span>{t.patientKiosk}</span>
               </button>
               <button
                 type="button"
                 onClick={() => handleQuickDemo('caregiver')}
                 className="px-3.5 py-1.5 rounded-xl text-xs font-semibold bg-white/5 hover:bg-[#ff5a00]/20 hover:border-[#ff5a00]/40 border border-white/10 text-slate-200 transition-all flex items-center gap-1.5"
               >
-                <span>🛡️ Family Caregiver</span>
+                <span>{t.familyCaregiver}</span>
               </button>
               <button
                 type="button"
                 onClick={() => handleQuickDemo('asha')}
                 className="px-3.5 py-1.5 rounded-xl text-xs font-semibold bg-white/5 hover:bg-[#ff5a00]/20 hover:border-[#ff5a00]/40 border border-white/10 text-slate-200 transition-all flex items-center gap-1.5"
               >
-                <span>🩺 ASHA Health Worker</span>
+                <span>{t.ashaWorker}</span>
               </button>
             </div>
           </div>
@@ -154,15 +173,13 @@ export const AuthPage: React.FC<AuthPageProps> = ({ currentLang, onLoginSuccess 
                 {isSignUp ? t.createAccount : t.signIn}
               </h2>
               <p className="text-slate-400 text-xs sm:text-sm">
-                {isSignUp
-                  ? 'Sign up to start your cognitive training journey.'
-                  : 'Welcome back! Access your memory dashboard.'}
+                {isSignUp ? t.signUpDesc : t.signInDesc}
               </p>
             </div>
 
             {/* Select Role / Persona */}
             <div className="mb-5">
-              <label className="text-xs font-medium text-slate-400 block mb-1.5">Select Role</label>
+              <label className="text-xs font-medium text-slate-400 block mb-1.5">{t.selectRole}</label>
               <div className="grid grid-cols-3 gap-1.5 p-1 bg-black/40 rounded-xl border border-white/5 text-[11px]">
                 <button
                   type="button"
@@ -171,7 +188,7 @@ export const AuthPage: React.FC<AuthPageProps> = ({ currentLang, onLoginSuccess 
                     selectedRole === 'patient' ? 'bg-[#ff5a00] text-white font-bold' : 'text-slate-400'
                   }`}
                 >
-                  Patient
+                  {t.patientRole}
                 </button>
                 <button
                   type="button"
@@ -180,7 +197,7 @@ export const AuthPage: React.FC<AuthPageProps> = ({ currentLang, onLoginSuccess 
                     selectedRole === 'caregiver' ? 'bg-[#ff5a00] text-white font-bold' : 'text-slate-400'
                   }`}
                 >
-                  Caregiver
+                  {t.caregiverRole}
                 </button>
                 <button
                   type="button"
@@ -189,7 +206,7 @@ export const AuthPage: React.FC<AuthPageProps> = ({ currentLang, onLoginSuccess 
                     selectedRole === 'asha' ? 'bg-[#ff5a00] text-white font-bold' : 'text-slate-400'
                   }`}
                 >
-                  ASHA
+                  {t.ashaRole}
                 </button>
               </div>
             </div>
@@ -202,7 +219,7 @@ export const AuthPage: React.FC<AuthPageProps> = ({ currentLang, onLoginSuccess 
                     <User className="w-4 h-4 text-slate-400 absolute left-3.5 pointer-events-none" />
                     <input
                       type="text"
-                      placeholder="Full Name"
+                      placeholder={t.fullName}
                       value={fullName}
                       onChange={(e) => setFullName(e.target.value)}
                       required
@@ -218,7 +235,7 @@ export const AuthPage: React.FC<AuthPageProps> = ({ currentLang, onLoginSuccess 
                   <Mail className="w-4 h-4 text-slate-400 absolute left-3.5 pointer-events-none" />
                   <input
                     type="text"
-                    placeholder="Phone Number or Email"
+                    placeholder={t.emailOrPhone}
                     value={emailOrPhone}
                     onChange={(e) => setEmailOrPhone(e.target.value)}
                     required
@@ -233,7 +250,7 @@ export const AuthPage: React.FC<AuthPageProps> = ({ currentLang, onLoginSuccess 
                   <Lock className="w-4 h-4 text-slate-400 absolute left-3.5 pointer-events-none" />
                   <input
                     type="password"
-                    placeholder="Password or 6-digit OTP PIN"
+                    placeholder={t.passwordOrPin}
                     value={passwordOrPin}
                     onChange={(e) => setPasswordOrPin(e.target.value)}
                     required
@@ -257,24 +274,24 @@ export const AuthPage: React.FC<AuthPageProps> = ({ currentLang, onLoginSuccess 
             <div className="mt-6 text-center text-xs text-slate-400">
               {isSignUp ? (
                 <p>
-                  Already have an account?{' '}
+                  {t.alreadyHaveAccount}{' '}
                   <button
                     type="button"
                     onClick={() => setIsSignUp(false)}
                     className="text-[#ff7a29] hover:underline font-semibold"
                   >
-                    Sign in here
+                    {t.signInHere}
                   </button>
                 </p>
               ) : (
                 <p>
-                  Don't have an account?{' '}
+                  {t.dontHaveAccount}{' '}
                   <button
                     type="button"
                     onClick={() => setIsSignUp(true)}
                     className="text-[#ff7a29] hover:underline font-semibold"
                   >
-                    Sign up here
+                    {t.signUpHere}
                   </button>
                 </p>
               )}

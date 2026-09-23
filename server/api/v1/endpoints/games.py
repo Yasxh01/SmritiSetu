@@ -102,6 +102,14 @@ REGIONAL_LOCALES = {
         "try_again": "Take your time, let's try again",
         "take_water": "Remember to take a sip of water",
         "take_medicine": "Time for your scheduled medicine"
+    },
+    "hi": {
+        "welcome": "नमस्ते, स्मृतिसेतु में आपका स्वागत है",
+        "start_game": "गतिविधि शुरू करें",
+        "good_job": "बहुत बढ़िया!",
+        "try_again": "फिर से प्रयास करें, कोई चिंता नहीं",
+        "take_water": "पानी पीना न भूलें",
+        "take_medicine": "दवा लेने का समय हो गया है"
     }
 }
 

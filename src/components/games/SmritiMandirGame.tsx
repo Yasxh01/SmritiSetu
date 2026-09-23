@@ -5,15 +5,16 @@ import { audio } from '../../services/audioService';
 import { offlineService } from '../../services/offlineStore';
 import { api, DdaEvaluationResult } from '../../services/api';
 import { DdaFeedbackOverlay } from './DdaFeedbackOverlay';
+import { Language, translations } from '../../services/i18n';
 
 // Cultural items with authentic NER motifs
-const CULTURAL_CARDS = [
-  { id: 'jaapi', name: 'Jaapi (জাপি)', icon: '👒', desc: 'Traditional conical sun hat of Assam' },
-  { id: 'xorai', name: 'Xorai (শৰাই)', icon: '🏺', desc: 'Sacred brass offering vessel' },
-  { id: 'gamosa', name: 'Gamosa (গামোচা)', icon: '🧣', desc: 'Handwoven red & white cultural cloth' },
-  { id: 'pepa', name: 'Pepa (পেঁপা)', icon: '🎺', desc: 'Traditional horn musical instrument' },
-  { id: 'hornbill', name: 'Hornbill Feather', icon: '🪶', desc: 'Symbolic bird of Nagaland' },
-  { id: 'lotus', name: 'Loktak Lotus', icon: '🪷', desc: 'Sacred floating lake flower of Manipur' },
+const getCulturalCards = (t: Record<string, string>) => [
+  { id: 'jaapi', name: t.jaapiName || 'Jaapi', icon: '👒' },
+  { id: 'xorai', name: t.xoraiName || 'Xorai', icon: '🏺' },
+  { id: 'gamosa', name: t.gamosaName || 'Gamosa', icon: '🧣' },
+  { id: 'pepa', name: t.pepaName || 'Pepa', icon: '🎺' },
+  { id: 'hornbill', name: t.hornbillName || 'Hornbill Feather', icon: '🪶' },
+  { id: 'lotus', name: t.lotusName || 'Loktak Lotus', icon: '🪷' },
 ];
 
 interface CardState {
@@ -25,7 +26,12 @@ interface CardState {
   isMatched: boolean;
 }
 
-export const SmritiMandirGame: React.FC<{ onBack: () => void }> = ({ onBack }) => {
+interface SmritiMandirGameProps {
+  onBack: () => void;
+  currentLang?: Language;
+}
+
+export const SmritiMandirGame: React.FC<SmritiMandirGameProps> = ({ onBack, currentLang = 'en' }) => {
   const [cards, setCards] = useState<CardState[]>([]);
   const [selectedCards, setSelectedCards] = useState<number[]>([]);
   const [moves, setMoves] = useState(0);
@@ -35,6 +41,8 @@ export const SmritiMandirGame: React.FC<{ onBack: () => void }> = ({ onBack }) =
   const [showAnxietyRelief, setShowAnxietyRelief] = useState(false);
   const [ddaResult, setDdaResult] = useState<DdaEvaluationResult | null>(null);
 
+  const t = translations[currentLang];
+
   // Reaction time & hesitation metrics
   const startTimeRef = useRef<number>(Date.now());
   const lastClickTimeRef = useRef<number>(Date.now());
@@ -42,7 +50,8 @@ export const SmritiMandirGame: React.FC<{ onBack: () => void }> = ({ onBack }) =
 
   // Initialize game deck (2 pairs each of 4 to 6 items)
   const initGame = (numPairs = 4) => {
-    const selectedItems = CULTURAL_CARDS.slice(0, numPairs);
+    const cardDefs = getCulturalCards(t);
+    const selectedItems = cardDefs.slice(0, numPairs);
     const deck = [...selectedItems, ...selectedItems]
       .sort(() => Math.random() - 0.5)
       .map((item, idx) => ({
@@ -185,17 +194,17 @@ export const SmritiMandirGame: React.FC<{ onBack: () => void }> = ({ onBack }) =
           className="flex items-center gap-2 text-slate-300 hover:text-white px-3 py-1.5 rounded-xl hover:bg-white/5 text-sm font-semibold transition-all"
         >
           <ArrowLeft className="w-4 h-4" />
-          <span>Back to Games (ঘূৰি যাওক)</span>
+          <span>{t.backToGames}</span>
         </button>
 
         <div className="flex items-center gap-4 text-xs sm:text-sm font-medium">
           <div className="flex items-center gap-1.5 text-slate-300">
             <Sparkles className="w-4 h-4 text-[#ff5a00]" />
-            <span>Moves: <strong className="text-white">{moves}</strong></span>
+            <span>{t.moves}: <strong className="text-white">{moves}</strong></span>
           </div>
           <div className="flex items-center gap-1.5 text-slate-300">
             <Trophy className="w-4 h-4 text-emerald-400" />
-            <span>Matched: <strong className="text-white">{matches}/{cards.length / 2}</strong></span>
+            <span>{t.matched}: <strong className="text-white">{matches}/{cards.length / 2}</strong></span>
           </div>
           <button
             onClick={() => initGame(cards.length / 2)}
@@ -232,7 +241,7 @@ export const SmritiMandirGame: React.FC<{ onBack: () => void }> = ({ onBack }) =
                 <div className="w-12 h-12 rounded-xl bg-white/5 border border-white/10 flex items-center justify-center mx-auto">
                   <Brain className="w-6 h-6 text-[#ff5a00]" />
                 </div>
-                <span className="text-[11px] text-slate-400 block font-medium">স্মৃতিসেতু</span>
+                <span className="text-[11px] text-slate-400 block font-medium">{t.appName}</span>
               </div>
             )}
           </button>
@@ -248,10 +257,10 @@ export const SmritiMandirGame: React.FC<{ onBack: () => void }> = ({ onBack }) =
 
           <div className="space-y-1">
             <h3 className="text-2xl sm:text-3xl font-extrabold text-white">
-              বৰ ধুনীয়া হৈছে! (Wonderful Completion!)
+              {t.wellDone}
             </h3>
             <p className="text-slate-400 text-xs sm:text-sm">
-              Session telemetry persisted to edge storage and processed by AI Dynamic Difficulty Adjustment.
+              {t.sessionSaved}
             </p>
           </div>
 
@@ -286,13 +295,13 @@ export const SmritiMandirGame: React.FC<{ onBack: () => void }> = ({ onBack }) =
               onClick={() => initGame(4)}
               className="btn-primary px-6 py-3 text-sm font-bold"
             >
-              Play Again (পুনৰ খেলক)
+              {t.playAgain}
             </button>
             <button
               onClick={onBack}
               className="px-6 py-3 rounded-full bg-white/10 hover:bg-white/20 text-white text-sm font-semibold border border-white/10"
             >
-              Choose Another Game
+              {t.chooseAnother}
             </button>
           </div>
         </div>
@@ -301,6 +310,7 @@ export const SmritiMandirGame: React.FC<{ onBack: () => void }> = ({ onBack }) =
       {/* Anxiety-Relief calming prompt */}
       <DdaFeedbackOverlay
         isOpen={showAnxietyRelief}
+        currentLang={currentLang}
         onDismiss={() => {
           setShowAnxietyRelief(false);
           initGame(3); // Lower difficulty to 3 pairs

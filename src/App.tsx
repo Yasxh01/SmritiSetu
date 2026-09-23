@@ -13,7 +13,7 @@ export const App: React.FC = () => {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [currentUser, setCurrentUser] = useState<any>(null);
   const [activeRole, setActiveRole] = useState<'patient' | 'caregiver' | 'asha' | 'doctor'>('caregiver');
-  const [currentLang, setCurrentLang] = useState<Language>('as');
+  const [currentLang, setCurrentLang] = useState<Language>('en');
   const [currentTab, setCurrentTab] = useState<string>('games');
   const [isOnline, setIsOnline] = useState<boolean>(navigator.onLine);
   const [pendingSyncCount, setPendingSyncCount] = useState<number>(0);
@@ -61,6 +61,7 @@ export const App: React.FC = () => {
     return (
       <AuthPage
         currentLang={currentLang}
+        onLanguageChange={setCurrentLang}
         onLoginSuccess={handleLoginSuccess}
       />
     );
@@ -85,10 +86,10 @@ export const App: React.FC = () => {
 
       {/* Main Content Body */}
       <main className="flex-1 pb-16">
-        {currentTab === 'games' && <GameCenter />}
-        {currentTab === 'dashboard' && <CaregiverDashboard />}
-        {currentTab === 'reminders' && <RemindersManager />}
-        {currentTab === 'asha' && <AshaCohortView />}
+        {currentTab === 'games' && <GameCenter currentLang={currentLang} />}
+        {currentTab === 'dashboard' && <CaregiverDashboard currentLang={currentLang} />}
+        {currentTab === 'reminders' && <RemindersManager currentLang={currentLang} />}
+        {currentTab === 'asha' && <AshaCohortView currentLang={currentLang} />}
       </main>
 
       {/* Emergency SOS Modal */}
@@ -96,6 +97,7 @@ export const App: React.FC = () => {
         isOpen={sosModalOpen}
         onClose={() => setSosModalOpen(false)}
         patientName={currentUser?.full_name || 'Bonti Aita'}
+        currentLang={currentLang}
       />
     </div>
   );

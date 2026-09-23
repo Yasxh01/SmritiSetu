@@ -43,6 +43,7 @@ async def test_cultural_catalog_and_locales(client):
     assert "bn" in locales
     assert "brx" in locales
     assert "en" in locales
+    assert "hi" in locales
     assert "নমস্কাৰ" in locales["as"]["welcome"]
     assert "खुलुमबाय" in locales["brx"]["welcome"]
 

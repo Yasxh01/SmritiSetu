@@ -3,6 +3,7 @@ import confetti from 'canvas-confetti';
 import { ArrowLeft, CheckCircle2, RotateCcw, Sparkles } from 'lucide-react';
 import { audio } from '../../services/audioService';
 import { offlineService } from '../../services/offlineStore';
+import { Language, translations } from '../../services/i18n';
 
 interface Item {
   id: number;
@@ -11,14 +12,24 @@ interface Item {
   icon: string;
 }
 
-export const DhyaanKendraGame: React.FC<{ onBack: () => void }> = ({ onBack }) => {
+interface DhyaanKendraGameProps {
+  onBack: () => void;
+  currentLang?: Language;
+}
+
+export const DhyaanKendraGame: React.FC<DhyaanKendraGameProps> = ({ onBack, currentLang = 'en' }) => {
+  const t = translations[currentLang];
+
+  const getInitialItems = (): Item[] => [
+    { id: 1, type: 'golden_tips', label: t.goldenTip, icon: '🍃' },
+    { id: 2, type: 'green_leaf', label: t.greenLeaf, icon: '🌿' },
+    { id: 3, type: 'golden_tips', label: t.goldenTip, icon: '🍃' },
+    { id: 4, type: 'stone', label: t.pebble, icon: '🪨' },
+    { id: 5, type: 'golden_tips', label: t.goldenTip, icon: '🍃' },
+  ];
+
   const [score, setScore] = useState(0);
-  const [items, setItems] = useState<Item[]>([
-    { id: 1, type: 'golden_tips', label: 'Golden Tip (সোণালী চাহ পাত)', icon: '🍃' },
-    { id: 2, type: 'green_leaf', label: 'Green Leaf (কেঁচা পাত)', icon: '🌿' },
-    { id: 3, type: 'golden_tips', label: 'Golden Tip', icon: '🍃' },
-    { id: 4, type: 'stone', label: 'Pebble (শিলগুটি)', icon: '🪨' },
-  ]);
+  const [items, setItems] = useState<Item[]>(getInitialItems);
   const [targetType, setTargetType] = useState<'golden_tips'>('golden_tips');
   const [completed, setCompleted] = useState(false);
 
@@ -50,13 +61,7 @@ export const DhyaanKendraGame: React.FC<{ onBack: () => void }> = ({ onBack }) =
   const resetGame = () => {
     setScore(0);
     setCompleted(false);
-    setItems([
-      { id: 1, type: 'golden_tips', label: 'Golden Tip (সোণালী চাহ পাত)', icon: '🍃' },
-      { id: 2, type: 'green_leaf', label: 'Green Leaf (কেঁচা পাত)', icon: '🌿' },
-      { id: 3, type: 'golden_tips', label: 'Golden Tip', icon: '🍃' },
-      { id: 4, type: 'stone', label: 'Pebble (শিলগুটি)', icon: '🪨' },
-      { id: 5, type: 'golden_tips', label: 'Golden Tip', icon: '🍃' },
-    ]);
+    setItems(getInitialItems());
   };
 
   return (
@@ -67,21 +72,21 @@ export const DhyaanKendraGame: React.FC<{ onBack: () => void }> = ({ onBack }) =
           className="flex items-center gap-2 text-slate-300 hover:text-white px-3 py-1.5 rounded-xl hover:bg-white/5 text-sm font-semibold transition-all"
         >
           <ArrowLeft className="w-4 h-4" />
-          <span>Back (ঘূৰি যাওক)</span>
+          <span>{t.backToGames}</span>
         </button>
 
         <div className="text-sm font-medium">
-          Score: <strong className="text-[#ff7a29]">{score}</strong>
+          {t.score}: <strong className="text-[#ff7a29]">{score}</strong>
         </div>
       </div>
 
       <div className="glass-card p-8 rounded-3xl border border-white/10 text-center space-y-6">
         <div className="space-y-2">
           <h2 className="text-2xl sm:text-3xl font-bold text-white">
-            ধ্যান কেন্দ্ৰ (Tea Garden Sorting - চাহ পাত বাছনি)
+            {t.dhyaanTitle}
           </h2>
           <p className="text-slate-300 text-sm max-w-md mx-auto">
-            Tap and collect all the <strong className="text-[#ff7a29]">Golden Tips (সোণালী চাহ পাত 🍃)</strong> and avoid stones.
+            {t.dhyaanDesc}
           </p>
         </div>
 
@@ -101,10 +106,10 @@ export const DhyaanKendraGame: React.FC<{ onBack: () => void }> = ({ onBack }) =
         ) : (
           <div className="py-8 space-y-4 animate-fade-in">
             <CheckCircle2 className="w-16 h-16 text-emerald-400 mx-auto" />
-            <h3 className="text-2xl font-bold text-white">চাহ পাত বাছনি সম্পূৰ্ণ হ’ল!</h3>
-            <p className="text-slate-400 text-sm">Great sustained attention and hand-eye accuracy.</p>
+            <h3 className="text-2xl font-bold text-white">{t.teaSortComplete}</h3>
+            <p className="text-slate-400 text-sm">{t.teaSortPraise}</p>
             <button onClick={resetGame} className="btn-primary px-8 py-3 text-sm font-bold mx-auto">
-              Play Again (পুনৰ আৰম্ভ কৰক)
+              {t.playAgain}
             </button>
           </div>
         )}
