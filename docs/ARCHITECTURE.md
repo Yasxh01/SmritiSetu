@@ -1,4 +1,4 @@
-# SmritiSetu NER - Backend & Edge Data Architecture (brain.md)
+# SmritiSetu NER - Backend & Edge Data Architecture
 
 ## 1. Local-First Edge Database Layer
 The foundation of SmritiSetu NER's offline capabilities rests on a robust local-first storage architecture.

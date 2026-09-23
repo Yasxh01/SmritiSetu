@@ -44,8 +44,16 @@ python -m pytest tests/server/test_analytics_anomaly.py -v
 python -m pytest tests/integration/test_runbook.py -v -o asyncio_default_test_loop_scope=function
 ```
 
-### 4. Hackathon Live Demo Runbook
-Execute the end-to-end simulation scripts built for the final pitch presentation:
+### 4. One-Click Full-Stack Launcher (Windows)
+To start everything with a single click (seed database, launch FastAPI backend, launch React frontend, and open browser):
+```powershell
+.\run_all.bat
+# or in PowerShell
+.\run_all.ps1
+```
+
+### 5. Hackathon Live Demo Runbook
+Execute the end-to-end simulation script built for the final pitch presentation:
 
 ```bash
 # Seed the synthetic Assamese patient database trajectory
@@ -54,3 +62,11 @@ python -m server.scripts.seed_demo_data
 # Run the live interactive terminal pitch (Showcases Edge writes -> Delta Sync -> Cloud FHIR -> SMS Dispatch)
 python -m server.scripts.demo_runner
 ```
+
+## Documentation & Specifications
+
+Detailed architectural documents and data contracts are organized in the [`docs/`](./docs) folder:
+- [System Architecture & Edge Engine](./docs/ARCHITECTURE.md)
+- [Product Requirements Document (PRD)](./docs/PRD.md)
+- [Data Models & Schema Contracts](./docs/SCHEMA.md)
+

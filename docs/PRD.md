@@ -1,4 +1,4 @@
-# SmritiSetu NER - Backend & Data Sync Specifications (prd.md)
+# SmritiSetu NER - Product Requirements Document (PRD)
 
 ## 1. Functional Requirements
 
