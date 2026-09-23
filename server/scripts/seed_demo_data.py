@@ -6,30 +6,35 @@ import sys
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '../..')))
 
 from datetime import datetime, timedelta, timezone
+from sqlalchemy import select
 from server.db.session import engine, async_session
 from server.db.models import Base, Patient, TelemetryObservation, MedicationAdherence
 from server.services.synthetic_generator import generate_synthetic_30_day_timeline
+from server.init_db import init_db
 
 async def seed_data():
-    async with engine.begin() as conn:
-        await conn.run_sync(Base.metadata.create_all)
+    await init_db()
         
     async with async_session() as session:
-        # 1. Create Patient
         pat_id = "ner-pat-78902-assamese"
-        pat = Patient(
-            id=pat_id,
-            name_alias="Aita",
-            demographics_json={"age": 72, "gender": "female", "cdr": 0.5},
-            baseline_moca=22,
-            preferred_lang="as"
-        )
-        session.add(pat)
         
-        # 2. Generate Synthetic 30-day timeline
-        dataset = generate_synthetic_30_day_timeline(pat_id)
+        # 1. Check/Create Patient
+        existing_pat = await session.execute(select(Patient).where(Patient.id == pat_id))
+        if not existing_pat.scalars().first():
+            pat = Patient(
+                id=pat_id,
+                name_alias="Bonti Aita (বন্টি আইতা)",
+                demographics_json={"age": 74, "gender": "Female", "region": "Kamrup, Assam", "cdr": 0.5},
+                baseline_moca=22,
+                preferred_lang="as"
+            )
+            session.add(pat)
         
-        base_date = datetime.now(timezone.utc) - timedelta(days=30)
+        # 2. Generate Synthetic 30-day timeline if not already generated
+        existing_obs = await session.execute(select(TelemetryObservation).where(TelemetryObservation.patient_id == pat_id))
+        if not existing_obs.scalars().first():
+            dataset = generate_synthetic_30_day_timeline(pat_id)
+            base_date = datetime.now(timezone.utc) - timedelta(days=30)
         
         for i, data in enumerate(dataset["timeline"]):
             obs_date = base_date + timedelta(days=i)

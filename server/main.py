@@ -1,6 +1,8 @@
+import os
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-from fastapi.responses import RedirectResponse
+from fastapi.responses import RedirectResponse, FileResponse
+from fastapi.staticfiles import StaticFiles
 from server.api.v1.router import api_router
 from server.core.config import settings
 from server.db.session import engine
@@ -26,12 +28,24 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+static_dir = os.path.join(os.path.dirname(__file__), "static")
+if os.path.exists(static_dir):
+    app.mount("/static", StaticFiles(directory=static_dir), name="static")
+
 @app.get("/health")
 async def health_check():
     return {"status": "ok"}
+
+@app.get("/ml-lab", include_in_schema=False)
+async def ml_lab():
+    lab_path = os.path.join(static_dir, "ml_lab.html")
+    if os.path.exists(lab_path):
+        return FileResponse(lab_path)
+    return {"message": "ML Lab UI not found"}
 
 app.include_router(api_router, prefix=settings.API_V1_STR)
 
 @app.get("/", include_in_schema=False)
 async def root_redirect():
     return RedirectResponse(url="/docs")
+

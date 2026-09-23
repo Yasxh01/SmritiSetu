@@ -1,5 +1,6 @@
 from typing import List, Dict, Any, Optional
 from datetime import datetime, timezone
+from server.ml.clinical_mapping import translate_to_clinical_telemetry
 
 SKILL_INDEX = {
     "smriti_mandir": 0,    # visual_memory
@@ -91,6 +92,13 @@ def evaluate_adaptive_difficulty(
         difficulty_vector = [round(s / 600.0, 2) for s in skill_vector]
         recommended_task = f"{game_id}_{tier.lower()}_challenge"
         
+    clinical_observation = translate_to_clinical_telemetry({
+        "game_id": game_id,
+        "completion_time_ms": completion_time_ms,
+        "error_count": error_count,
+        "hesitation_pause_ms": hesitation_pause_ms
+    }, round(overall_rating, 1))
+
     return {
         "patient_id": patient_id,
         "mElo_rating": round(overall_rating, 1),
@@ -99,5 +107,7 @@ def evaluate_adaptive_difficulty(
         "difficulty_vector": difficulty_vector,
         "anxiety_relief_triggered": anxiety_triggered,
         "recommended_task_id": recommended_task,
+        "clinical_observation": clinical_observation,
         "updated_at": datetime.now(timezone.utc).isoformat()
     }
+

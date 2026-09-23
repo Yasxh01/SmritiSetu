@@ -6,6 +6,8 @@ import { offlineService } from '../../services/offlineStore';
 import { api, DdaEvaluationResult } from '../../services/api';
 import { DdaFeedbackOverlay } from './DdaFeedbackOverlay';
 import { Language, translations } from '../../services/i18n';
+import { processGameplayTelemetry } from '../../ml/bridge';
+
 
 // Cultural items with authentic NER motifs
 const getCulturalCards = (t: Record<string, string>) => [
@@ -159,16 +161,28 @@ export const SmritiMandirGame: React.FC<SmritiMandirGameProps> = ({ onBack, curr
       colors: ['#ff5a00', '#ff9e00', '#ffffff'],
     });
 
-    // Save telemetry to offline IndexedDB (sub-15ms guaranteed write)
-    await offlineService.recordTelemetry({
-      patient_id: 'ner-pat-78902-assamese',
-      session_id: `sess-${Date.now()}`,
-      game_id: 'smriti_mandir',
-      completion_time_ms: completionTime,
-      error_count: errors,
-      hesitation_pause_ms: totalHesitationRef.current,
-      timestamp: new Date().toISOString(),
-    });
+    // Save telemetry to offline IndexedDB and run Edge mElo & Clinical ICF mapping
+    try {
+      await processGameplayTelemetry(
+        'ner-pat-78902-assamese',
+        {
+          session_id: `sess-${Date.now()}`,
+          game_id: 'Smriti Mandir',
+          completion_time_ms: completionTime,
+          error_count: errors,
+          hesitation_pause_ms: totalHesitationRef.current,
+          audio_voice_latency_ms: 0,
+        },
+        {
+          rating: 640,
+          skill_vector: [1.0, 1.0, 1.0, 1.0],
+          baseline_latency: { mean: 2000, std: 500 },
+          rolling_accuracy: errors === 0 ? 1.0 : Math.max(0.2, 1.0 - errors * 0.2),
+        }
+      );
+    } catch (edgeErr) {
+      console.warn('Edge mElo bridge write:', edgeErr);
+    }
 
     // Invoke AI/ML mElo Dynamic Difficulty Adjustment evaluation
     try {
@@ -184,6 +198,7 @@ export const SmritiMandirGame: React.FC<SmritiMandirGameProps> = ({ onBack, curr
       console.error(e);
     }
   };
+
 
   return (
     <div className="max-w-4xl mx-auto p-4 sm:p-6 space-y-6 animate-fade-in">
@@ -264,28 +279,34 @@ export const SmritiMandirGame: React.FC<SmritiMandirGameProps> = ({ onBack, curr
             </p>
           </div>
 
-          {/* AI mElo Vector stats */}
+          {/* AI mElo Vector stats & Clinical Mapping */}
           {ddaResult && (
-            <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 p-4 rounded-2xl bg-black/40 border border-white/5 text-left text-xs">
-              <div>
-                <span className="text-slate-500 block">mElo Rating</span>
-                <span className="text-base font-bold text-[#ff7a29]">{ddaResult.mElo_rating}</span>
+            <div className="space-y-3">
+              <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 p-4 rounded-2xl bg-black/40 border border-white/5 text-left text-xs">
+                <div>
+                  <span className="text-slate-500 block">mElo Rating</span>
+                  <span className="text-base font-bold text-[#ff7a29]">{ddaResult.mElo_rating}</span>
+                </div>
+                <div>
+                  <span className="text-slate-500 block">Difficulty Tier</span>
+                  <span className="text-base font-bold text-white">{ddaResult.tier}</span>
+                </div>
+                <div>
+                  <span className="text-slate-500 block">Anxiety Guard</span>
+                  <span className="text-base font-bold text-emerald-400">
+                    {ddaResult.anxiety_relief_triggered ? 'Triggered (Calmed)' : 'Optimal'}
+                  </span>
+                </div>
+                <div>
+                  <span className="text-slate-500 block">Next Adaptive Task</span>
+                  <span className="text-xs font-semibold text-slate-300 truncate block">
+                    {ddaResult.recommended_task_id}
+                  </span>
+                </div>
               </div>
-              <div>
-                <span className="text-slate-500 block">Difficulty Tier</span>
-                <span className="text-base font-bold text-white">{ddaResult.tier}</span>
-              </div>
-              <div>
-                <span className="text-slate-500 block">Anxiety Guard</span>
-                <span className="text-base font-bold text-emerald-400">
-                  {ddaResult.anxiety_relief_triggered ? 'Triggered (Calmed)' : 'Optimal'}
-                </span>
-              </div>
-              <div>
-                <span className="text-slate-500 block">Next Adaptive Task</span>
-                <span className="text-xs font-semibold text-slate-300 truncate block">
-                  {ddaResult.recommended_task_id}
-                </span>
+              <div className="flex items-center justify-between px-4 py-2.5 rounded-xl bg-orange-500/10 border border-[#ff5a00]/30 text-xs">
+                <span className="text-slate-300 font-medium">Clinical Standard:</span>
+                <span className="text-[#ff7a29] font-mono font-semibold">WHO ICF b1560 • MoCA Visuospatial</span>
               </div>
             </div>
           )}

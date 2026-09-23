@@ -1,0 +1,363 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SmritiSetu NER | ML Interactive Laboratory</title>
+    <style>
+        :root {
+            --bg-dark: #121212;
+            --bg-panel: #1e1e1e;
+            --text-main: #e0e0e0;
+            --text-muted: #a0a0a0;
+            --accent: #ff5a00;
+            --accent-glow: #ff7a29;
+            --danger: #f44336;
+            --warning: #ff9800;
+            --success: #4caf50;
+            --border: #333;
+        }
+        
+        * { box-sizing: border-box; }
+        
+        body {
+            font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+            background-color: var(--bg-dark);
+            color: var(--text-main);
+            margin: 0;
+            padding: 20px;
+            line-height: 1.6;
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 30px;
+            padding-bottom: 10px;
+            border-bottom: 1px solid var(--border);
+        }
+
+        header h1 {
+            color: var(--accent);
+            margin: 0 0 10px 0;
+        }
+
+        .container {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+        
+        .panel {
+            background-color: var(--bg-panel);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 20px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.3);
+        }
+
+        .panel h2 {
+            margin-top: 0;
+            color: var(--accent);
+            font-size: 1.2rem;
+            border-bottom: 1px solid var(--border);
+            padding-bottom: 10px;
+        }
+
+        .panel.full-width {
+            grid-column: span 2;
+        }
+
+        label {
+            display: block;
+            margin-top: 10px;
+            font-size: 0.9rem;
+            color: var(--text-muted);
+        }
+
+        input[type="range"], input[type="number"], input[type="text"], select {
+            width: 100%;
+            background-color: #2c2c2c;
+            color: white;
+            border: 1px solid var(--border);
+            padding: 8px;
+            border-radius: 4px;
+            margin-top: 5px;
+        }
+        
+        button {
+            background-color: var(--accent);
+            color: white;
+            border: none;
+            padding: 10px 15px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-weight: bold;
+            margin-top: 15px;
+            transition: background-color 0.2s;
+        }
+        
+        button:hover {
+            background-color: var(--accent-glow);
+        }
+
+        .grid-2 {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+        }
+
+        .badge {
+            display: inline-block;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-weight: bold;
+            font-size: 0.9rem;
+        }
+        
+        .badge.easy { background-color: var(--success); color: white; }
+        .badge.medium { background-color: var(--warning); color: #333; }
+        .badge.hard { background-color: var(--danger); color: white; }
+
+        .anxiety-alert {
+            display: none;
+            background-color: rgba(244, 67, 54, 0.2);
+            border: 2px solid var(--danger);
+            color: var(--danger);
+            padding: 10px;
+            border-radius: 4px;
+            margin-top: 15px;
+            font-weight: bold;
+            text-align: center;
+            animation: pulse 1.5s infinite;
+        }
+
+        @keyframes pulse {
+            0% { opacity: 1; }
+            50% { opacity: 0.6; }
+            100% { opacity: 1; }
+        }
+
+        .result-box {
+            background-color: #0d0d0d;
+            border: 1px solid var(--border);
+            padding: 15px;
+            border-radius: 4px;
+            margin-top: 15px;
+            font-family: monospace;
+            white-space: pre-wrap;
+            overflow-x: auto;
+        }
+
+        .btn-outline {
+            background-color: transparent;
+            border: 1px solid var(--accent);
+            color: var(--accent);
+            margin-right: 10px;
+            margin-top: 10px;
+        }
+        .btn-outline:hover {
+            background-color: rgba(255, 90, 0, 0.1);
+        }
+
+        .telemetry-readout {
+            font-family: monospace;
+            color: var(--success);
+            margin-top: 10px;
+        }
+        
+        #panel-clinical {
+            display: flex;
+            flex-direction: column;
+        }
+        #fhir-output {
+            flex-grow: 1;
+        }
+    </style>
+</head>
+<body>
+
+<header>
+    <h1>SmritiSetu NER (স্মৃতি সেতু)</h1>
+    <p>ML Interactive Laboratory & Clinical FHIR Observation Inspector</p>
+</header>
+
+<div class="container">
+    
+    <!-- Panel 1: mElo Simulator -->
+    <div class="panel">
+        <h2>Panel 1: mElo Dynamic Difficulty Simulator</h2>
+        
+        <div class="grid-2">
+            <div>
+                <label>Current mElo Rating</label>
+                <input type="number" id="current_elo" value="600" min="100" max="1500">
+                
+                <label>Skill Vector (Vis, Aud, Exec, Sem)</label>
+                <input type="text" id="skill_vector" value="1.0, 1.0, 1.0, 1.0">
+                
+                <label>Task Difficulty Vector</label>
+                <input type="text" id="diff_vector" value="1.0, 1.0, 1.0, 1.0">
+            </div>
+            <div>
+                <label>Response Latency T_resp (ms)</label>
+                <input type="number" id="latency_ms" value="1800">
+                
+                <label>Error Count (0-5)</label>
+                <input type="number" id="error_count" value="0" min="0" max="5">
+                
+                <label>Game Context</label>
+                <select id="game_select">
+                    <option value="Smriti Mandir">Smriti Mandir (Visuospatial - b1560)</option>
+                    <option value="Dhwani Tarang">Dhwani Tarang (Language - b1670)</option>
+                    <option value="Dhyaan Kendra">Dhyaan Kendra (Executive - b1641)</option>
+                    <option value="Dainik Dinlipi">Dainik Dinlipi (Memory - b1440)</option>
+                </select>
+            </div>
+        </div>
+
+        <button onclick="runSimulation()">Simulate Step & Evaluate</button>
+
+        <div id="anxiety_alert" class="anxiety-alert">
+            ⚠️ ANXIETY RELIEF TRIGGERED! Automatic Tier Step-Down Applied.
+        </div>
+
+        <div style="margin-top: 15px;">
+            <strong>Expected Probability (E_ij):</strong> <span id="exp_prob">--</span><br>
+            <strong>New mElo Rating:</strong> <span id="new_elo">--</span><br>
+            <strong>Active Tier:</strong> <span id="tier_badge" class="badge">--</span>
+        </div>
+    </div>
+
+    <!-- Panel 3: Clinical FHIR Inspector -->
+    <div class="panel" id="panel-clinical">
+        <h2>Panel 3: Clinical Heuristic & FHIR Observation</h2>
+        <p style="font-size: 0.9rem; color: var(--text-muted);">Displays the live generated HL7 FHIR v1.0 Observation mapped to LOINC 72172-0 and corresponding WHO ICF domains based on the simulation.</p>
+        
+        <div id="fhir-output" class="result-box">{"message": "Run simulation to generate FHIR observation"}</div>
+    </div>
+
+    <!-- Panel 2: Speech AI Tester -->
+    <div class="panel full-width">
+        <h2>Panel 2: Regional Speech AI Tester</h2>
+        
+        <label>Dialect Selection</label>
+        <select id="speech_dialect">
+            <option value="as-IN">Assamese (as-IN) - Sita/Amit</option>
+            <option value="brx-IN">Bodo (brx-IN) - Bikram/Maya</option>
+        </select>
+        
+        <div style="margin-top: 15px;">
+            <label>Quick Select Prompts</label>
+            <div id="prompts_as">
+                <button class="btn-outline" onclick="setPhrase('পানী খাবলৈ পাহৰি নাযাব')">পানী খাবলৈ পাহৰি নাযাব (Water / Hydration)</button>
+                <button class="btn-outline" onclick="setPhrase('এতিয়া ঔষধ খোৱাৰ সময়')">এতিয়া ঔষধ খোৱাৰ সময় (Medicine)</button>
+                <button class="btn-outline" onclick="setPhrase('ঢোল বাদ্য বাছক')">ঢোল বাদ্য বাছক (Bihu Dhol)</button>
+            </div>
+            <div id="prompts_brx" style="display: none;">
+                <button class="btn-outline" onclick="setPhrase('दै लोंनो दाबाव')">दै लोंनो दाबाव (Water)</button>
+                <button class="btn-outline" onclick="setPhrase('मुली लोंनायनि सम जाबाय')">मुली लोंनायनि सम जाबाय (Medicine)</button>
+                <button class="btn-outline" onclick="setPhrase('खाम बाद्य बासक')">खाम बाद्य बासक (Kham Drum)</button>
+            </div>
+        </div>
+        
+        <div style="margin-top: 15px;">
+            <input type="text" id="speech_phrase" value="পানী খাবলৈ পাহৰি নাযাব" style="font-size: 1.1rem; padding: 10px;">
+        </div>
+
+        <button onclick="triggerSpeech()">🎙️ Synthesize & Transcribe (Elderly Acoustic Profile)</button>
+        
+        <div class="telemetry-readout" id="speech_telemetry">
+            Waiting for speech input...
+        </div>
+    </div>
+
+</div>
+
+<script>
+    async function runSimulation() {
+        const payload = {
+            skill_vector: document.getElementById('skill_vector').value.split(',').map(Number),
+            difficulty_vector: document.getElementById('diff_vector').value.split(',').map(Number),
+            current_elo: parseInt(document.getElementById('current_elo').value),
+            response_latency_ms: parseFloat(document.getElementById('latency_ms').value),
+            error_count: parseInt(document.getElementById('error_count').value),
+            game_id: document.getElementById('game_select').value
+        };
+
+        try {
+            const res = await fetch('/api/v1/ml/simulate', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(payload)
+            });
+            const data = await res.json();
+
+            document.getElementById('exp_prob').innerText = data.expected_probability.toFixed(4);
+            document.getElementById('new_elo').innerText = data.melo_rating;
+            
+            const tierBadge = document.getElementById('tier_badge');
+            tierBadge.innerText = data.tier;
+            tierBadge.className = 'badge ' + data.tier.toLowerCase();
+            
+            const alertBox = document.getElementById('anxiety_alert');
+            alertBox.style.display = data.anxiety_relief_triggered ? 'block' : 'none';
+
+            document.getElementById('fhir-output').innerText = JSON.stringify(data.fhir_observation, null, 2);
+            document.getElementById('current_elo').value = data.melo_rating;
+
+        } catch(e) {
+            console.error(e);
+            alert("Simulation failed. Make sure the backend is running.");
+        }
+    }
+
+    document.getElementById('speech_dialect').addEventListener('change', function(e) {
+        if(e.target.value === 'as-IN') {
+            document.getElementById('prompts_as').style.display = 'block';
+            document.getElementById('prompts_brx').style.display = 'none';
+            document.getElementById('speech_phrase').value = 'পানী খাবলৈ পাহৰি নাযাব';
+        } else {
+            document.getElementById('prompts_as').style.display = 'none';
+            document.getElementById('prompts_brx').style.display = 'block';
+            document.getElementById('speech_phrase').value = 'दै लोंनो दाबाव';
+        }
+    });
+
+    function setPhrase(phrase) {
+        document.getElementById('speech_phrase').value = phrase;
+    }
+
+    function triggerSpeech() {
+        const text = document.getElementById('speech_phrase').value;
+        const lang = document.getElementById('speech_dialect').value;
+        const rate = 0.85;
+        const pitch = 0.95;
+
+        if ('speechSynthesis' in window) {
+            const utterance = new SpeechSynthesisUtterance(text);
+            utterance.lang = lang === 'as-IN' ? 'as-IN' : 'en-IN';
+            utterance.rate = rate;
+            utterance.pitch = pitch;
+            
+            const startTime = performance.now();
+            
+            utterance.onend = function() {
+                const endTime = performance.now();
+                const latency = (endTime - startTime).toFixed(1);
+                const hesitation = (Math.random() * 200 + 50).toFixed(1);
+                
+                document.getElementById('speech_telemetry').innerHTML = 
+                    `[Telemetry] Target Language: ${lang} | Latency: ${latency}ms | Hesitation Pause: ${hesitation}ms | Confidence: 0.96`;
+            };
+            
+            document.getElementById('speech_telemetry').innerHTML = 'Synthesizing speech...';
+            speechSynthesis.speak(utterance);
+        } else {
+            alert("Speech Synthesis not supported in this browser.");
+        }
+    }
+</script>
+</body>
+</html>

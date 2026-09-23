@@ -4,6 +4,8 @@ import { ArrowLeft, Play, Volume2, RotateCcw, CheckCircle2, Trophy, Sparkles, Mu
 import { audio } from '../../services/audioService';
 import { offlineService } from '../../services/offlineStore';
 import { Language, translations } from '../../services/i18n';
+import { processGameplayTelemetry } from '../../ml/bridge';
+
 
 interface DhwaniTarangGameProps {
   onBack: () => void;
@@ -170,16 +172,29 @@ export const DhwaniTarangGame: React.FC<DhwaniTarangGameProps> = ({ onBack, curr
       setMessage(t.brilliantRhythm || 'Brilliant rhythm memory!');
       setScore((s) => s + 100);
 
-      // Record telemetry for analytics
-      await offlineService.recordTelemetry({
-        patient_id: 'ner-pat-78902-assamese',
-        session_id: `dhwani-${Date.now()}`,
-        game_id: 'dhwani_tarang',
-        completion_time_ms: 1250,
-        error_count: 0,
-        hesitation_pause_ms: 100,
-        timestamp: new Date().toISOString(),
-      });
+      // Record telemetry for analytics and edge mElo / WHO ICF evaluation
+      try {
+        await processGameplayTelemetry(
+          'ner-pat-78902-assamese',
+          {
+            session_id: `dhwani-${Date.now()}`,
+            game_id: 'Dhwani Tarang',
+            completion_time_ms: 1250,
+            error_count: 0,
+            hesitation_pause_ms: 100,
+            audio_voice_latency_ms: 50,
+          },
+          {
+            rating: 660,
+            skill_vector: [1.0, 1.0, 1.0, 1.0],
+            baseline_latency: { mean: 2000, std: 500 },
+            rolling_accuracy: 0.9,
+          }
+        );
+      } catch (err) {
+        console.warn('Edge mElo bridge write:', err);
+      }
+
 
       const nextLevelTid = setTimeout(() => {
         const nextLvl = level + 1;
@@ -227,8 +242,9 @@ export const DhwaniTarangGame: React.FC<DhwaniTarangGameProps> = ({ onBack, curr
         <div className="space-y-2 relative z-10">
           <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-[#ff5a00]/15 text-[#ff7a29] border border-[#ff5a00]/30 text-xs font-bold uppercase tracking-wider">
             <Music2 className="w-3.5 h-3.5" />
-            <span>Auditory Rhythm Memory • LOINC 72172-0</span>
+            <span>Auditory Rhythm Memory • LOINC 72172-0 • WHO ICF b1670</span>
           </div>
+
           <h2 className="text-2xl sm:text-3xl font-extrabold text-white tracking-tight">
             {t.dhwaniTitle}
           </h2>
