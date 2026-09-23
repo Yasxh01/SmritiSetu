@@ -9,8 +9,11 @@ from contextlib import asynccontextmanager
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
-    async with engine.begin() as conn:
-        await conn.run_sync(Base.metadata.create_all)
+    from server.init_db import init_db
+    try:
+        await init_db()
+    except Exception as e:
+        print(f"Database initialization notice: {e}")
     yield
 
 app = FastAPI(title=settings.PROJECT_NAME, lifespan=lifespan)
