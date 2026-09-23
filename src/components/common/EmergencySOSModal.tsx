@@ -1,5 +1,7 @@
 import React, { useState, useEffect } from 'react';
+import { createPortal } from 'react-dom';
 import { AlertTriangle, PhoneCall, MapPin, CheckCircle2, X } from 'lucide-react';
+
 import { api } from '../../services/api';
 import { audio } from '../../services/audioService';
 import { Language, translations } from '../../services/i18n';
@@ -73,10 +75,20 @@ export const EmergencySOSModal: React.FC<EmergencySOSModalProps> = ({
   };
 
   if (!isOpen) return null;
+  if (typeof document === 'undefined') return null;
 
-  return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-md animate-fade-in">
-      <div className="glass-card w-full max-w-lg rounded-3xl p-6 sm:p-8 border border-red-500/30 shadow-[0_0_50px_rgba(239,68,68,0.3)] relative">
+  return createPortal(
+    <div
+      className="fixed inset-0 z-[90000] flex items-center justify-center p-4 bg-black/80 backdrop-blur-md animate-fade-in"
+      onClick={(e) => {
+        if (e.target === e.currentTarget && !dispatched) onClose();
+      }}
+    >
+      <div
+        className="glass-card w-full max-w-lg rounded-3xl p-6 sm:p-8 border border-red-500/30 shadow-[0_0_50px_rgba(239,68,68,0.3)] relative"
+        onClick={(e) => e.stopPropagation()}
+      >
+
         <button
           onClick={onClose}
           className="absolute top-5 right-5 p-2 rounded-full hover:bg-white/10 text-slate-400 hover:text-white"
@@ -161,6 +173,8 @@ export const EmergencySOSModal: React.FC<EmergencySOSModalProps> = ({
         currentLang={currentLang}
         initialEvent="sos"
       />
-    </div>
+    </div>,
+    document.body
   );
 };
+

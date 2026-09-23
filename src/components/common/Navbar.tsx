@@ -167,11 +167,13 @@ export const Navbar: React.FC<NavbarProps> = ({
         <button
           onClick={() => setShowSmsModal(true)}
           title="Telephony & SMS Gateway Infrastructure Logs"
-          className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-xl bg-[#ff5a00]/15 hover:bg-[#ff5a00]/25 text-[#ff7a29] border border-[#ff5a00]/30 text-xs font-bold transition-all shadow-glow-orange cursor-pointer"
+          className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-[#ff5a00]/20 hover:bg-[#ff5a00]/30 text-[#ff7a29] border border-[#ff5a00]/40 text-xs font-bold transition-all shadow-glow-orange cursor-pointer"
         >
           <Smartphone className="w-3.5 h-3.5" />
-          <span className="hidden xl:inline">SMS Gateway</span>
+          <span className="hidden sm:inline">SMS Gateway</span>
+          <span className="sm:hidden">SMS</span>
         </button>
+
 
         {/* Emergency SOS Button */}
         <button

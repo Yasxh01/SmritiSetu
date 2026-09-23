@@ -1,4 +1,5 @@
 import React from 'react';
+import { createPortal } from 'react-dom';
 import { Heart, Sparkles, Volume2, Shield } from 'lucide-react';
 import { audio } from '../../services/audioService';
 import { Language, translations } from '../../services/i18n';
@@ -15,11 +16,13 @@ export const DdaFeedbackOverlay: React.FC<DdaFeedbackOverlayProps> = ({
   currentLang = 'en',
 }) => {
   if (!isOpen) return null;
+  if (typeof document === 'undefined') return null;
 
   const t = translations[currentLang];
 
-  return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/85 backdrop-blur-lg animate-fade-in">
+  return createPortal(
+    <div className="fixed inset-0 z-[80000] flex items-center justify-center p-4 bg-black/85 backdrop-blur-lg animate-fade-in">
+
       <div className="glass-card max-w-md w-full rounded-3xl p-8 border border-[#ff5a00]/30 shadow-glow-orange-lg text-center space-y-6">
         {/* Pulsing gentle heart/lotus icon */}
         <div className="w-20 h-20 mx-auto rounded-full bg-gradient-to-tr from-[#ff5a00]/20 to-[#ff9e00]/20 border border-[#ff5a00]/40 flex items-center justify-center animate-pulse">
@@ -54,6 +57,8 @@ export const DdaFeedbackOverlay: React.FC<DdaFeedbackOverlayProps> = ({
           {t.continueRelaxed}
         </button>
       </div>
-    </div>
+    </div>,
+    document.body
   );
 };
+

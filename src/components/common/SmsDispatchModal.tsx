@@ -1,4 +1,5 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import { createPortal } from 'react-dom';
 import { Smartphone, CheckCircle2, ShieldAlert, MapPin, Send, Clock, Server, ExternalLink, X, AlertTriangle, PhoneCall } from 'lucide-react';
 import { audio } from '../../services/audioService';
 import { Language } from '../../services/i18n';
@@ -146,7 +147,23 @@ export const SmsDispatchModal: React.FC<SmsDispatchModalProps> = ({
   const [activeChannel, setActiveChannel] = useState<'family' | 'asha' | 'gateway'>('family');
   const [isSimulating, setIsSimulating] = useState(false);
 
+  useEffect(() => {
+    setSelectedEvent(initialEvent);
+  }, [initialEvent]);
+
+  useEffect(() => {
+    if (isOpen) {
+      document.body.style.overflow = 'hidden';
+    } else {
+      document.body.style.overflow = '';
+    }
+    return () => {
+      document.body.style.overflow = '';
+    };
+  }, [isOpen]);
+
   if (!isOpen) return null;
+  if (typeof document === 'undefined') return null;
 
   const handleSimulateSend = () => {
     setIsSimulating(true);
@@ -160,9 +177,18 @@ export const SmsDispatchModal: React.FC<SmsDispatchModalProps> = ({
   const currentLangEvents = localizedEvents[currentLang] || localizedEvents.en;
   const activeEventData = currentLangEvents[selectedEvent] || currentLangEvents.sos;
 
-  return (
-    <div className="fixed inset-0 z-[9999] flex items-center justify-center p-3 sm:p-6 bg-black/90 backdrop-blur-lg animate-fade-in overflow-y-auto">
-      <div className="glass-card w-full max-w-3xl max-h-[92vh] flex flex-col rounded-3xl p-5 sm:p-7 border border-[#ff5a00]/40 shadow-[0_0_80px_rgba(255,90,0,0.3)] relative my-auto overflow-hidden">
+  return createPortal(
+    <div
+      className="fixed inset-0 z-[100000] flex items-center justify-center p-3 sm:p-6 bg-black/90 backdrop-blur-xl animate-fade-in overflow-y-auto"
+      onClick={(e) => {
+        if (e.target === e.currentTarget) onClose();
+      }}
+    >
+      <div
+        className="glass-card w-full max-w-3xl max-h-[92vh] flex flex-col rounded-3xl p-5 sm:p-7 border border-[#ff5a00]/40 shadow-[0_0_80px_rgba(255,90,0,0.3)] relative my-auto overflow-hidden"
+        onClick={(e) => e.stopPropagation()}
+      >
+
         {/* Close Button */}
         <button
           onClick={onClose}
@@ -419,6 +445,8 @@ export const SmsDispatchModal: React.FC<SmsDispatchModalProps> = ({
           </button>
         </div>
       </div>
-    </div>
+    </div>,
+    document.body
   );
 };
+
