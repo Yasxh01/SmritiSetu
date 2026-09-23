@@ -51,6 +51,19 @@ export const App: React.FC = () => {
     else setCurrentTab('dashboard');
   };
 
+  const handleRoleChange = (role: 'patient' | 'caregiver' | 'asha' | 'doctor') => {
+    setActiveRole(role);
+    if (role === 'patient') {
+      if (currentTab !== 'games' && currentTab !== 'reminders') setCurrentTab('games');
+    } else if (role === 'caregiver') {
+      if (currentTab === 'games' || currentTab === 'asha') setCurrentTab('dashboard');
+    } else if (role === 'asha') {
+      if (currentTab === 'games' || currentTab === 'dashboard') setCurrentTab('asha');
+    } else if (role === 'doctor') {
+      if (currentTab === 'games') setCurrentTab('dashboard');
+    }
+  };
+
   const handleManualSync = async () => {
     await offlineService.markAllSynced();
     setPendingSyncCount(0);
@@ -74,7 +87,7 @@ export const App: React.FC = () => {
         currentLang={currentLang}
         onLanguageChange={setCurrentLang}
         activeRole={activeRole}
-        onRoleChange={setActiveRole}
+        onRoleChange={handleRoleChange}
         currentTab={currentTab}
         onTabChange={setCurrentTab}
         isOnline={isOnline}
@@ -87,9 +100,9 @@ export const App: React.FC = () => {
       {/* Main Content Body */}
       <main className="flex-1 pb-16">
         {currentTab === 'games' && <GameCenter currentLang={currentLang} />}
-        {currentTab === 'dashboard' && <CaregiverDashboard currentLang={currentLang} />}
+        {currentTab === 'dashboard' && <CaregiverDashboard currentLang={currentLang} activeRole={activeRole} />}
         {currentTab === 'reminders' && <RemindersManager currentLang={currentLang} />}
-        {currentTab === 'asha' && <AshaCohortView currentLang={currentLang} />}
+        {currentTab === 'asha' && <AshaCohortView currentLang={currentLang} activeRole={activeRole} />}
       </main>
 
       {/* Emergency SOS Modal */}

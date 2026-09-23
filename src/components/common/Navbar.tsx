@@ -34,7 +34,14 @@ export const Navbar: React.FC<NavbarProps> = ({
   return (
     <header className="sticky top-0 z-50 glass-card border-b border-white/10 px-4 lg:px-8 py-3.5 flex flex-wrap items-center justify-between gap-4">
       {/* Brand Logo & Name */}
-      <div className="flex items-center gap-3 cursor-pointer" onClick={() => onTabChange('games')}>
+      <div
+        className="flex items-center gap-3 cursor-pointer"
+        onClick={() => {
+          if (activeRole === 'patient') onTabChange('games');
+          else if (activeRole === 'asha') onTabChange('asha');
+          else onTabChange('dashboard');
+        }}
+      >
         <div className="w-10 h-10 rounded-xl bg-gradient-to-tr from-[#ff5a00] to-[#ff9d00] flex items-center justify-center shadow-glow-orange">
           <Brain className="w-6 h-6 text-white stroke-[2.5]" />
         </div>
@@ -46,20 +53,24 @@ export const Navbar: React.FC<NavbarProps> = ({
         </div>
       </div>
 
-      {/* Navigation Tabs based on Role */}
+      {/* Navigation Tabs strictly tailored by Role (RBAC) */}
       <nav className="flex items-center gap-1.5 bg-black/40 p-1.5 rounded-2xl border border-white/5">
-        <button
-          onClick={() => onTabChange('games')}
-          className={`px-3.5 py-1.5 rounded-xl text-xs md:text-sm font-medium transition-all ${
-            currentTab === 'games'
-              ? 'bg-[#ff5a00] text-white shadow-glow-orange font-semibold'
-              : 'text-slate-300 hover:text-white hover:bg-white/5'
-          }`}
-        >
-          {t.gameCenter}
-        </button>
+        {/* Patient Only: Cognitive Games */}
+        {activeRole === 'patient' && (
+          <button
+            onClick={() => onTabChange('games')}
+            className={`px-3.5 py-1.5 rounded-xl text-xs md:text-sm font-medium transition-all ${
+              currentTab === 'games'
+                ? 'bg-[#ff5a00] text-white shadow-glow-orange font-semibold'
+                : 'text-slate-300 hover:text-white hover:bg-white/5'
+            }`}
+          >
+            {t.gameCenter}
+          </button>
+        )}
 
-        {(activeRole === 'caregiver' || activeRole === 'doctor' || activeRole === 'asha') && (
+        {/* Caregiver & Doctor: Clinical / Family Analytics (Hidden for Patient & ASHA) */}
+        {(activeRole === 'caregiver' || activeRole === 'doctor') && (
           <button
             onClick={() => onTabChange('dashboard')}
             className={`px-3.5 py-1.5 rounded-xl text-xs md:text-sm font-medium transition-all ${
@@ -68,21 +79,25 @@ export const Navbar: React.FC<NavbarProps> = ({
                 : 'text-slate-300 hover:text-white hover:bg-white/5'
             }`}
           >
-            {t.dashboard}
+            {activeRole === 'doctor' ? (t.doctorStation || 'Clinical Neuro-Station') : t.dashboard}
           </button>
         )}
 
-        <button
-          onClick={() => onTabChange('reminders')}
-          className={`px-3.5 py-1.5 rounded-xl text-xs md:text-sm font-medium transition-all ${
-            currentTab === 'reminders'
-              ? 'bg-[#ff5a00] text-white shadow-glow-orange font-semibold'
-              : 'text-slate-300 hover:text-white hover:bg-white/5'
-          }`}
-        >
-          {t.reminders}
-        </button>
+        {/* Patient, Caregiver, ASHA: Reminders & Routine */}
+        {(activeRole === 'patient' || activeRole === 'caregiver' || activeRole === 'asha') && (
+          <button
+            onClick={() => onTabChange('reminders')}
+            className={`px-3.5 py-1.5 rounded-xl text-xs md:text-sm font-medium transition-all ${
+              currentTab === 'reminders'
+                ? 'bg-[#ff5a00] text-white shadow-glow-orange font-semibold'
+                : 'text-slate-300 hover:text-white hover:bg-white/5'
+            }`}
+          >
+            {activeRole === 'patient' ? (t.dinlipiTitle || 'Daily Routine') : t.reminders}
+          </button>
+        )}
 
+        {/* ASHA & Doctor: Village Cohort & Field Triage */}
         {(activeRole === 'asha' || activeRole === 'doctor') && (
           <button
             onClick={() => onTabChange('asha')}
@@ -92,7 +107,7 @@ export const Navbar: React.FC<NavbarProps> = ({
                 : 'text-slate-300 hover:text-white hover:bg-white/5'
             }`}
           >
-            {t.ashaPortal}
+            {activeRole === 'doctor' ? 'Village Cohort Review' : t.ashaPortal}
           </button>
         )}
       </nav>

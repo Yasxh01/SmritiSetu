@@ -5,9 +5,10 @@ import { Language, translations } from '../../services/i18n';
 
 interface AshaCohortViewProps {
   currentLang?: Language;
+  activeRole?: 'patient' | 'caregiver' | 'asha' | 'doctor';
 }
 
-export const AshaCohortView: React.FC<AshaCohortViewProps> = ({ currentLang = 'en' }) => {
+export const AshaCohortView: React.FC<AshaCohortViewProps> = ({ currentLang = 'en', activeRole = 'asha' }) => {
   const [cohort, setCohort] = useState<AshaCohortResponse | null>(null);
   const [loading, setLoading] = useState(true);
   const [selectedPatient, setSelectedPatient] = useState<string | null>(null);
@@ -17,6 +18,7 @@ export const AshaCohortView: React.FC<AshaCohortViewProps> = ({ currentLang = 'e
   const [checkinSuccess, setCheckinSuccess] = useState(false);
 
   const t = translations[currentLang];
+  const isDoctor = activeRole === 'doctor';
 
   useEffect(() => {
     loadCohort();
@@ -60,13 +62,15 @@ export const AshaCohortView: React.FC<AshaCohortViewProps> = ({ currentLang = 'e
       <div className="flex flex-wrap items-center justify-between gap-4">
         <div>
           <span className="text-xs font-bold uppercase tracking-wider text-[#ff7a29] block">
-            {t.ashaHeader}
+            {isDoctor ? 'District Medical Officer (Doctor) Cohort Surveillance' : (t.ashaHeader || 'ASHA Grassroots Field Portal')}
           </span>
           <h1 className="text-2xl sm:text-3xl font-bold text-white tracking-tight">
-            {t.ashaTitle}
+            {isDoctor ? 'Village Cohort Surveillance & Clinical Triage' : t.ashaTitle}
           </h1>
           <p className="text-slate-400 text-xs sm:text-sm">
-            {t.ashaSub}
+            {isDoctor
+              ? 'Multi-village cognitive trajectory oversight, ASHA escalations review, and clinical intervention approval.'
+              : t.ashaSub}
           </p>
         </div>
 

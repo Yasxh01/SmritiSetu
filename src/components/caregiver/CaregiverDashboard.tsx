@@ -1,18 +1,20 @@
 import React, { useState, useEffect } from 'react';
 import { AreaChart, Area, XAxis, YAxis, Tooltip, ResponsiveContainer } from 'recharts';
-import { Activity, AlertTriangle, ShieldCheck, HeartPulse, Clock, FileText, Phone, Sparkles } from 'lucide-react';
+import { Activity, AlertTriangle, ShieldCheck, HeartPulse, Clock, FileText, Phone, Sparkles, Stethoscope, ClipboardList, CheckCircle2 } from 'lucide-react';
 import { api, ChiData } from '../../services/api';
 import { Language, translations } from '../../services/i18n';
 
 interface CaregiverDashboardProps {
   currentLang?: Language;
+  activeRole?: 'patient' | 'caregiver' | 'asha' | 'doctor';
 }
 
-export const CaregiverDashboard: React.FC<CaregiverDashboardProps> = ({ currentLang = 'en' }) => {
+export const CaregiverDashboard: React.FC<CaregiverDashboardProps> = ({ currentLang = 'en', activeRole = 'caregiver' }) => {
   const [chiData, setChiData] = useState<ChiData | null>(null);
   const [loading, setLoading] = useState(true);
 
   const t = translations[currentLang];
+  const isDoctor = activeRole === 'doctor';
 
   useEffect(() => {
     const fetchChi = async () => {
@@ -41,14 +43,21 @@ export const CaregiverDashboard: React.FC<CaregiverDashboardProps> = ({ currentL
       {/* Header */}
       <div className="flex flex-wrap items-center justify-between gap-4">
         <div>
-          <span className="text-xs font-bold uppercase tracking-wider text-[#ff7a29] block">
-            {t.caregiverHeader}
+          <span className="text-xs font-bold uppercase tracking-wider text-[#ff7a29] flex items-center gap-1.5">
+            {isDoctor ? (
+              <>
+                <Stethoscope className="w-4 h-4 text-emerald-400" />
+                <span>Doctor Clinical Station • District Hospital / Neurologist</span>
+              </>
+            ) : (
+              <span>{t.caregiverHeader}</span>
+            )}
           </span>
-          <h1 className="text-2xl sm:text-3xl font-bold text-white tracking-tight">
-            {t.chiTitle}
+          <h1 className="text-2xl sm:text-3xl font-bold text-white tracking-tight mt-1">
+            {isDoctor ? (t.doctorStation || 'Clinical Neuro-Station') : t.chiTitle}
           </h1>
           <p className="text-slate-400 text-xs sm:text-sm">
-            {t.patientLabel}
+            {isDoctor ? (t.doctorStationDesc || 'Tertiary Clinical Review • Longitudinal Trajectory • FHIR / ABDM Export') : t.patientLabel}
           </p>
         </div>
 
@@ -69,6 +78,36 @@ export const CaregiverDashboard: React.FC<CaregiverDashboardProps> = ({ currentL
           </a>
         </div>
       </div>
+
+      {/* Doctor-Specific Diagnostic Biomarker Strip */}
+      {isDoctor && (
+        <div className="p-4 sm:p-5 rounded-2xl bg-emerald-950/20 border border-emerald-500/30 grid grid-cols-2 md:grid-cols-4 gap-4 animate-fade-in">
+          <div>
+            <span className="text-[11px] text-slate-400 uppercase tracking-wider block font-semibold">Clinical Dementia Rating</span>
+            <strong className="text-white text-sm sm:text-base font-bold flex items-center gap-1 mt-0.5">
+              CDR 0.5 <span className="text-xs text-amber-400 font-normal">(Mild MCI)</span>
+            </strong>
+          </div>
+          <div>
+            <span className="text-[11px] text-slate-400 uppercase tracking-wider block font-semibold">MoCA Cultural Score</span>
+            <strong className="text-white text-sm sm:text-base font-bold flex items-center gap-1 mt-0.5">
+              22 / 30 <span className="text-xs text-emerald-400 font-normal">(Assam Validated)</span>
+            </strong>
+          </div>
+          <div>
+            <span className="text-[11px] text-slate-400 uppercase tracking-wider block font-semibold">Motor Latency Z-Score</span>
+            <strong className="text-white text-sm sm:text-base font-bold flex items-center gap-1 mt-0.5">
+              μ = 420ms <span className="text-xs text-sky-400 font-normal">(Z = -1.42)</span>
+            </strong>
+          </div>
+          <div>
+            <span className="text-[11px] text-slate-400 uppercase tracking-wider block font-semibold">ABDM Care Context</span>
+            <strong className="text-white text-sm sm:text-base font-bold flex items-center gap-1 mt-0.5">
+              ABHA Active <span className="text-xs text-emerald-400 font-normal">● In-Sync</span>
+            </strong>
+          </div>
+        </div>
+      )}
 
       {/* Top 4 KPI Metrics */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
