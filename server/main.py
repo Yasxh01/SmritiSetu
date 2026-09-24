@@ -25,15 +25,25 @@ extra_origins = [
     for origin in os.environ.get("ALLOWED_ORIGINS", "").split(",") 
     if origin.strip()
 ]
-origins = ["http://localhost:5173", "http://127.0.0.1:5173"] + extra_origins
 
-app.add_middleware(
-    CORSMiddleware,
-    allow_origins=origins,
-    allow_credentials=True,
-    allow_methods=["*"],
-    allow_headers=["*"],
-)
+if extra_origins:
+    origins = ["http://localhost:5173", "http://127.0.0.1:5173", "http://localhost:3000"] + extra_origins
+    app.add_middleware(
+        CORSMiddleware,
+        allow_origins=origins,
+        allow_credentials=True,
+        allow_methods=["*"],
+        allow_headers=["*"],
+    )
+else:
+    # Seamlessly allow all deployed frontend domains (Vercel, Netlify, Render, preview URLs) with credentials
+    app.add_middleware(
+        CORSMiddleware,
+        allow_origin_regex=r"https?://.*",
+        allow_credentials=True,
+        allow_methods=["*"],
+        allow_headers=["*"],
+    )
 
 static_dir = os.path.join(os.path.dirname(__file__), "static")
 if os.path.exists(static_dir):

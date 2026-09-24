@@ -1,6 +1,6 @@
 // Frontend API service communicating with the FastAPI backend
-const baseUrl = import.meta.env.VITE_API_URL || 'http://127.0.0.1:8000';
-const API_BASE = `${baseUrl}/api/v1`;
+const rawBaseUrl = (import.meta.env.VITE_API_URL || 'http://127.0.0.1:8000').replace(/\/+$/, '');
+const API_BASE = rawBaseUrl.endsWith('/api/v1') ? rawBaseUrl : `${rawBaseUrl}/api/v1`;
 
 export interface GameCatalogItem {
   id: string;

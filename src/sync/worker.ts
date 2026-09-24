@@ -70,8 +70,9 @@ export class BackgroundSyncWorker {
    * Dispatches the heavily compressed payload to the /api/v1/sync/delta endpoint.
    */
   private async dispatchPayload(compressedPayload: string): Promise<void> {
-    const baseUrl = import.meta.env.VITE_API_URL || 'http://127.0.0.1:8000';
-    const endpoint = `${baseUrl}/api/v1/sync/delta`;
+    const rawBaseUrl = (import.meta.env.VITE_API_URL || 'http://127.0.0.1:8000').replace(/\/+$/, '');
+    const apiBase = rawBaseUrl.endsWith('/api/v1') ? rawBaseUrl : `${rawBaseUrl}/api/v1`;
+    const endpoint = `${apiBase}/sync/delta`;
 
     return new Promise((resolve, reject) => {
       // Simulating a network POST request to endpoint
