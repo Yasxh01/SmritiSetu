@@ -70,13 +70,13 @@ export const DhwaniTarangGame: React.FC<DhwaniTarangGameProps> = ({ onBack, curr
   }, []);
 
   const playInstrumentSound = (id: string) => {
-    if (id === 'dhol') audio.playDholBeat(true);
-    else if (id === 'tokari') audio.playPluck(380);
-    else if (id === 'rain') audio.playCalmingTone();
-    else if (id === 'flute') audio.playPluck(680);
+    if (id === 'dhol') audio.playDholSound();
+    else if (id === 'tokari') audio.playTokariSound();
+    else if (id === 'rain') audio.playRainSound();
+    else if (id === 'flute') audio.playFluteSound(680);
   };
 
-  const triggerInstrumentVisualAndSound = (id: string, duration = 650) => {
+  const triggerInstrumentVisualAndSound = (id: string, duration = 3000) => {
     playInstrumentSound(id);
     setActiveInstrumentId(id);
     const tid = setTimeout(() => {
@@ -96,12 +96,12 @@ export const DhwaniTarangGame: React.FC<DhwaniTarangGameProps> = ({ onBack, curr
     setActiveInstrumentId(null);
     setActiveStepIndex(null);
 
-    const stepInterval = 950; // Gentle pace for dementia accessibility
+    const stepInterval = 3500; // 3.5 seconds to accommodate the 3-second sounds
 
     seq.forEach((itemId, idx) => {
       const stepStart = setTimeout(() => {
         setActiveStepIndex(idx);
-        triggerInstrumentVisualAndSound(itemId, 700);
+        triggerInstrumentVisualAndSound(itemId, 3000);
       }, (idx + 1) * stepInterval);
 
       timeoutIdsRef.current.push(stepStart);
@@ -133,18 +133,17 @@ export const DhwaniTarangGame: React.FC<DhwaniTarangGameProps> = ({ onBack, curr
     playSequence(newSeq);
   };
 
-  // Handle player tapping an instrument
   const handleInstrumentClick = async (id: string) => {
     // In idle / practice mode before game starts, elder can tap freely to hear the sounds
     if (gameState === 'idle') {
-      triggerInstrumentVisualAndSound(id, 600);
+      triggerInstrumentVisualAndSound(id, 3000);
       return;
     }
 
     if (gameState !== 'playerTurn') return;
 
     // Trigger sound and brief glow
-    triggerInstrumentVisualAndSound(id, 450);
+    triggerInstrumentVisualAndSound(id, 3000);
 
     const updated = [...playerInput, id];
     setPlayerInput(updated);

@@ -10,11 +10,22 @@ import { Language } from './services/i18n';
 import { offlineService } from './services/offlineStore';
 
 export const App: React.FC = () => {
-  const [isAuthenticated, setIsAuthenticated] = useState(false);
-  const [currentUser, setCurrentUser] = useState<any>(null);
-  const [activeRole, setActiveRole] = useState<'patient' | 'caregiver' | 'asha' | 'doctor'>('caregiver');
-  const [currentLang, setCurrentLang] = useState<Language>('en');
-  const [currentTab, setCurrentTab] = useState<string>('games');
+  const [isAuthenticated, setIsAuthenticated] = useState(() => {
+    return localStorage.getItem('isAuthenticated') === 'true';
+  });
+  const [currentUser, setCurrentUser] = useState<any>(() => {
+    const saved = localStorage.getItem('currentUser');
+    return saved ? JSON.parse(saved) : null;
+  });
+  const [activeRole, setActiveRole] = useState<'patient' | 'caregiver' | 'asha' | 'doctor'>(() => {
+    return (localStorage.getItem('activeRole') as any) || 'caregiver';
+  });
+  const [currentLang, setCurrentLang] = useState<Language>(() => {
+    return (localStorage.getItem('currentLang') as Language) || 'en';
+  });
+  const [currentTab, setCurrentTab] = useState<string>(() => {
+    return localStorage.getItem('currentTab') || 'games';
+  });
   const [isOnline, setIsOnline] = useState<boolean>(navigator.onLine);
   const [pendingSyncCount, setPendingSyncCount] = useState<number>(0);
   const [sosModalOpen, setSosModalOpen] = useState<boolean>(false);
@@ -45,23 +56,44 @@ export const App: React.FC = () => {
     setCurrentUser(user);
     setActiveRole(role);
     setIsAuthenticated(true);
-    if (role === 'patient') setCurrentTab('games');
-    else if (role === 'caregiver') setCurrentTab('dashboard');
-    else if (role === 'asha') setCurrentTab('asha');
-    else setCurrentTab('dashboard');
+    localStorage.setItem('isAuthenticated', 'true');
+    localStorage.setItem('currentUser', JSON.stringify(user));
+    localStorage.setItem('activeRole', role);
+    
+    let defaultTab = 'dashboard';
+    if (role === 'patient') defaultTab = 'games';
+    else if (role === 'caregiver') defaultTab = 'dashboard';
+    else if (role === 'asha') defaultTab = 'asha';
+    
+    setCurrentTab(defaultTab);
+    localStorage.setItem('currentTab', defaultTab);
   };
 
   const handleRoleChange = (role: 'patient' | 'caregiver' | 'asha' | 'doctor') => {
     setActiveRole(role);
+    localStorage.setItem('activeRole', role);
+    let newTab = currentTab;
     if (role === 'patient') {
-      if (currentTab !== 'games' && currentTab !== 'reminders') setCurrentTab('games');
+      if (currentTab !== 'games' && currentTab !== 'reminders') newTab = 'games';
     } else if (role === 'caregiver') {
-      if (currentTab === 'games' || currentTab === 'asha') setCurrentTab('dashboard');
+      if (currentTab === 'games' || currentTab === 'asha') newTab = 'dashboard';
     } else if (role === 'asha') {
-      if (currentTab === 'games' || currentTab === 'dashboard') setCurrentTab('asha');
+      if (currentTab === 'games' || currentTab === 'dashboard') newTab = 'asha';
     } else if (role === 'doctor') {
-      if (currentTab === 'games') setCurrentTab('dashboard');
+      if (currentTab === 'games') newTab = 'dashboard';
     }
+    setCurrentTab(newTab);
+    localStorage.setItem('currentTab', newTab);
+  };
+
+  const handleTabChange = (tab: string) => {
+    setCurrentTab(tab);
+    localStorage.setItem('currentTab', tab);
+  };
+
+  const handleLanguageChange = (lang: Language) => {
+    setCurrentLang(lang);
+    localStorage.setItem('currentLang', lang);
   };
 
   const handleManualSync = async () => {
@@ -74,7 +106,7 @@ export const App: React.FC = () => {
     return (
       <AuthPage
         currentLang={currentLang}
-        onLanguageChange={setCurrentLang}
+        onLanguageChange={handleLanguageChange}
         onLoginSuccess={handleLoginSuccess}
       />
     );
@@ -85,16 +117,22 @@ export const App: React.FC = () => {
       {/* Top Universal Navigation Bar */}
       <Navbar
         currentLang={currentLang}
-        onLanguageChange={setCurrentLang}
+        onLanguageChange={handleLanguageChange}
         activeRole={activeRole}
         onRoleChange={handleRoleChange}
         currentTab={currentTab}
-        onTabChange={setCurrentTab}
+        onTabChange={handleTabChange}
         isOnline={isOnline}
         pendingSyncCount={pendingSyncCount}
         onTriggerSos={() => setSosModalOpen(true)}
         onManualSync={handleManualSync}
-        onLogout={() => setIsAuthenticated(false)}
+        onLogout={() => {
+          setIsAuthenticated(false);
+          localStorage.removeItem('isAuthenticated');
+          localStorage.removeItem('currentUser');
+          localStorage.removeItem('activeRole');
+          localStorage.removeItem('currentTab');
+        }}
       />
 
       {/* Main Content Body */}

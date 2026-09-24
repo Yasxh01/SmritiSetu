@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
-import { Brain, Wifi, WifiOff, Globe, AlertTriangle, UserCheck, ShieldAlert, HeartPulse, Smartphone } from 'lucide-react';
+import { createPortal } from 'react-dom';
+import { Brain, Wifi, WifiOff, Globe, AlertTriangle, UserCheck, ShieldAlert, HeartPulse, Smartphone, X } from 'lucide-react';
 import { Language, translations } from '../../services/i18n';
 import { SmsDispatchModal } from './SmsDispatchModal';
 
@@ -31,6 +32,7 @@ export const Navbar: React.FC<NavbarProps> = ({
   onLogout,
 }) => {
   const [showSmsModal, setShowSmsModal] = useState(false);
+  const [showLogoutConfirm, setShowLogoutConfirm] = useState(false);
   const t = translations[currentLang];
 
   return (
@@ -39,9 +41,18 @@ export const Navbar: React.FC<NavbarProps> = ({
       <div
         className="flex items-center gap-3 cursor-pointer"
         onClick={() => {
-          if (activeRole === 'patient') onTabChange('games');
-          else if (activeRole === 'asha') onTabChange('asha');
-          else onTabChange('dashboard');
+          let defaultTab = 'dashboard';
+          if (activeRole === 'patient') defaultTab = 'games';
+          else if (activeRole === 'asha') defaultTab = 'asha';
+
+          if (currentTab === defaultTab) {
+            // Already on the homepage tab, so perform a soft reset by reloading.
+            // Since we persist state in localStorage, this will safely take them
+            // back to the root of the tab without logging them out.
+            window.location.reload();
+          } else {
+            onTabChange(defaultTab);
+          }
         }}
       >
         <div className="w-10 h-10 rounded-xl bg-gradient-to-tr from-[#ff5a00] to-[#ff9d00] flex items-center justify-center shadow-glow-orange">
@@ -61,11 +72,10 @@ export const Navbar: React.FC<NavbarProps> = ({
         {activeRole === 'patient' && (
           <button
             onClick={() => onTabChange('games')}
-            className={`px-3.5 py-1.5 rounded-xl text-xs md:text-sm font-medium transition-all ${
-              currentTab === 'games'
+            className={`px-3.5 py-1.5 rounded-xl text-xs md:text-sm font-medium transition-all ${currentTab === 'games'
                 ? 'bg-[#ff5a00] text-white shadow-glow-orange font-semibold'
                 : 'text-slate-300 hover:text-white hover:bg-white/5'
-            }`}
+              }`}
           >
             {t.gameCenter}
           </button>
@@ -75,11 +85,10 @@ export const Navbar: React.FC<NavbarProps> = ({
         {(activeRole === 'caregiver' || activeRole === 'doctor') && (
           <button
             onClick={() => onTabChange('dashboard')}
-            className={`px-3.5 py-1.5 rounded-xl text-xs md:text-sm font-medium transition-all ${
-              currentTab === 'dashboard'
+            className={`px-3.5 py-1.5 rounded-xl text-xs md:text-sm font-medium transition-all ${currentTab === 'dashboard'
                 ? 'bg-[#ff5a00] text-white shadow-glow-orange font-semibold'
                 : 'text-slate-300 hover:text-white hover:bg-white/5'
-            }`}
+              }`}
           >
             {activeRole === 'doctor' ? (t.doctorStation || 'Clinical Neuro-Station') : t.dashboard}
           </button>
@@ -89,11 +98,10 @@ export const Navbar: React.FC<NavbarProps> = ({
         {(activeRole === 'patient' || activeRole === 'caregiver' || activeRole === 'asha') && (
           <button
             onClick={() => onTabChange('reminders')}
-            className={`px-3.5 py-1.5 rounded-xl text-xs md:text-sm font-medium transition-all ${
-              currentTab === 'reminders'
+            className={`px-3.5 py-1.5 rounded-xl text-xs md:text-sm font-medium transition-all ${currentTab === 'reminders'
                 ? 'bg-[#ff5a00] text-white shadow-glow-orange font-semibold'
                 : 'text-slate-300 hover:text-white hover:bg-white/5'
-            }`}
+              }`}
           >
             {activeRole === 'patient' ? (t.dinlipiTitle || 'Daily Routine') : t.reminders}
           </button>
@@ -103,11 +111,10 @@ export const Navbar: React.FC<NavbarProps> = ({
         {(activeRole === 'asha' || activeRole === 'doctor') && (
           <button
             onClick={() => onTabChange('asha')}
-            className={`px-3.5 py-1.5 rounded-xl text-xs md:text-sm font-medium transition-all ${
-              currentTab === 'asha'
+            className={`px-3.5 py-1.5 rounded-xl text-xs md:text-sm font-medium transition-all ${currentTab === 'asha'
                 ? 'bg-[#ff5a00] text-white shadow-glow-orange font-semibold'
                 : 'text-slate-300 hover:text-white hover:bg-white/5'
-            }`}
+              }`}
           >
             {activeRole === 'doctor' ? 'Village Cohort Review' : t.ashaPortal}
           </button>
@@ -120,11 +127,10 @@ export const Navbar: React.FC<NavbarProps> = ({
         <div
           onClick={onManualSync}
           title={isOnline ? t.syncOnline : t.offlineMode}
-          className={`flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[11px] font-medium border cursor-pointer transition-all ${
-            isOnline
+          className={`flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[11px] font-medium border cursor-pointer transition-all ${isOnline
               ? 'bg-emerald-500/10 text-emerald-400 border-emerald-500/30 hover:bg-emerald-500/20'
               : 'bg-amber-500/10 text-amber-400 border-amber-500/30 animate-pulse'
-          }`}
+            }`}
         >
           {isOnline ? <Wifi className="w-3.5 h-3.5" /> : <WifiOff className="w-3.5 h-3.5" />}
           <span className="hidden sm:inline">{isOnline ? t.online : t.offline}</span>
@@ -186,7 +192,7 @@ export const Navbar: React.FC<NavbarProps> = ({
 
         {/* Exit / Switch Account */}
         <button
-          onClick={onLogout}
+          onClick={() => setShowLogoutConfirm(true)}
           title="Switch Account / Sign Out"
           className="p-1.5 text-slate-400 hover:text-white rounded-lg hover:bg-white/5"
         >
@@ -201,6 +207,51 @@ export const Navbar: React.FC<NavbarProps> = ({
         currentLang={currentLang}
         initialEvent="sos"
       />
+
+      {/* Logout Confirmation Modal */}
+      {showLogoutConfirm && createPortal(
+        <div
+          className="fixed inset-0 z-[9999] flex items-center justify-center bg-black/70 backdrop-blur-md p-4"
+          onClick={() => setShowLogoutConfirm(false)}
+        >
+          <div
+            className="glass-card max-w-sm w-full rounded-2xl p-6 border border-white/10 shadow-2xl flex flex-col items-center text-center relative"
+            onClick={(e) => e.stopPropagation()}
+          >
+            {/* Close Cross Button */}
+            <button
+              onClick={() => setShowLogoutConfirm(false)}
+              className="absolute top-4 right-4 p-1.5 text-slate-400 hover:text-white hover:bg-white/10 rounded-lg transition-colors"
+            >
+              <X className="w-5 h-5" />
+            </button>
+
+            <div className="w-12 h-12 rounded-full bg-red-500/20 flex items-center justify-center mb-4 border border-red-500/30 mt-2">
+              <UserCheck className="w-6 h-6 text-red-500" />
+            </div>
+            <h3 className="text-xl font-bold text-white mb-2">Logout</h3>
+            <p className="text-sm text-slate-300 mb-6">Are you sure you want to log out?</p>
+            <div className="flex flex-row gap-3 w-full">
+              <button
+                onClick={() => setShowLogoutConfirm(false)}
+                className="flex-1 py-2.5 rounded-xl bg-white/5 border border-white/10 hover:bg-white/10 text-sm font-semibold text-slate-200 transition-all"
+              >
+                No, Go Back
+              </button>
+              <button
+                onClick={() => {
+                  setShowLogoutConfirm(false);
+                  onLogout();
+                }}
+                className="flex-1 py-2.5 rounded-xl bg-red-600 hover:bg-red-500 text-sm font-semibold text-white transition-all shadow-[0_0_15px_rgba(239,68,68,0.3)]"
+              >
+                Yes, Logout
+              </button>
+            </div>
+          </div>
+        </div>,
+        document.body
+      )}
     </header>
   );
 };

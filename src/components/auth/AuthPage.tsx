@@ -59,8 +59,8 @@ export const AuthPage: React.FC<AuthPageProps> = ({ currentLang, onLanguageChang
           role === 'patient'
             ? 'Bonti Aita (বন্টি আইতা)'
             : role === 'caregiver'
-            ? 'Rongmon Barua (যত্নকাৰী)'
-            : 'Mina Das (আশা কৰ্মী)',
+              ? 'Rongmon Barua (যত্নকাৰী)'
+              : 'Mina Das (আশা কৰ্মী)',
         phone_number: '+919876543210',
         role,
       },
@@ -94,7 +94,7 @@ export const AuthPage: React.FC<AuthPageProps> = ({ currentLang, onLanguageChang
 
       <div className="max-w-7xl mx-auto w-full grid grid-cols-1 lg:grid-cols-12 gap-12 items-center relative z-10">
         {/* Left Column: Visual Brand, Glowing Neural Brain & Tagline (Matches reference photo) */}
-        <div className="lg:col-span-7 flex flex-col justify-center space-y-8">
+        <div className="lg:col-span-7 flex flex-col justify-center space-y-2 sm:space-y-4 lg:space-y-6">
           {/* Logo */}
           <div className="flex items-center gap-3">
             <div className="w-11 h-11 rounded-2xl bg-gradient-to-tr from-[#ff5a00] to-[#ff9e00] flex items-center justify-center shadow-glow-orange">
@@ -106,23 +106,20 @@ export const AuthPage: React.FC<AuthPageProps> = ({ currentLang, onLanguageChang
           </div>
 
           {/* Interactive Neural Brain Visualization */}
-          <div className="relative w-full max-w-[500px] h-[320px] sm:h-[380px] -my-4">
+          <div className="relative w-full max-w-[500px] h-[320px] sm:h-[380px] -my-8 sm:-my-10">
             <NeuralBrainCanvas className="w-full h-full" />
-            
+
             {/* Floating Telemetry Badges */}
             <div className="absolute top-6 left-2 glass-card px-3 py-1.5 rounded-xl border border-white/10 flex items-center gap-2 shadow-lg animate-pulse">
               <Activity className="w-3.5 h-3.5 text-[#ff7a29]" />
               <span className="text-[11px] font-semibold text-slate-300">{t.loincBadge}</span>
             </div>
 
-            <div className="absolute bottom-6 right-2 glass-card px-3 py-1.5 rounded-xl border border-white/10 flex items-center gap-2 shadow-lg">
-              <ShieldCheck className="w-3.5 h-3.5 text-emerald-400" />
-              <span className="text-[11px] font-semibold text-slate-300">{t.crdtBadge}</span>
-            </div>
+
           </div>
 
           {/* Headline directly from user reference mockup */}
-          <div className="space-y-3">
+          <div className="space-y-1 sm:space-y-2">
             <h1 className="text-3xl sm:text-4xl lg:text-5xl font-extrabold tracking-tight leading-[1.18] text-white">
               {t.tagline1}<br />
               <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#ff5a00] via-[#ff7700] to-[#ff9e00] text-glow-orange">
@@ -134,35 +131,7 @@ export const AuthPage: React.FC<AuthPageProps> = ({ currentLang, onLanguageChang
             </p>
           </div>
 
-          {/* Quick Demo Persona Shortcuts */}
-          <div className="pt-2">
-            <span className="text-xs uppercase tracking-wider text-slate-500 font-semibold block mb-2">
-              {t.demoShortcuts}
-            </span>
-            <div className="flex flex-wrap gap-2.5">
-              <button
-                type="button"
-                onClick={() => handleQuickDemo('patient')}
-                className="px-3.5 py-1.5 rounded-xl text-xs font-semibold bg-white/5 hover:bg-[#ff5a00]/20 hover:border-[#ff5a00]/40 border border-white/10 text-slate-200 transition-all flex items-center gap-1.5"
-              >
-                <span>{t.patientKiosk}</span>
-              </button>
-              <button
-                type="button"
-                onClick={() => handleQuickDemo('caregiver')}
-                className="px-3.5 py-1.5 rounded-xl text-xs font-semibold bg-white/5 hover:bg-[#ff5a00]/20 hover:border-[#ff5a00]/40 border border-white/10 text-slate-200 transition-all flex items-center gap-1.5"
-              >
-                <span>{t.familyCaregiver}</span>
-              </button>
-              <button
-                type="button"
-                onClick={() => handleQuickDemo('asha')}
-                className="px-3.5 py-1.5 rounded-xl text-xs font-semibold bg-white/5 hover:bg-[#ff5a00]/20 hover:border-[#ff5a00]/40 border border-white/10 text-slate-200 transition-all flex items-center gap-1.5"
-              >
-                <span>{t.ashaWorker}</span>
-              </button>
-            </div>
-          </div>
+
         </div>
 
         {/* Right Column: Sleek Glassmorphism Auth Card (Matches reference photo) */}
@@ -184,27 +153,24 @@ export const AuthPage: React.FC<AuthPageProps> = ({ currentLang, onLanguageChang
                 <button
                   type="button"
                   onClick={() => setSelectedRole('patient')}
-                  className={`py-1.5 rounded-lg font-medium transition-all ${
-                    selectedRole === 'patient' ? 'bg-[#ff5a00] text-white font-bold' : 'text-slate-400'
-                  }`}
+                  className={`py-1.5 rounded-lg font-medium transition-all ${selectedRole === 'patient' ? 'bg-[#ff5a00] text-white font-bold' : 'text-slate-400'
+                    }`}
                 >
                   {t.patientRole}
                 </button>
                 <button
                   type="button"
                   onClick={() => setSelectedRole('caregiver')}
-                  className={`py-1.5 rounded-lg font-medium transition-all ${
-                    selectedRole === 'caregiver' ? 'bg-[#ff5a00] text-white font-bold' : 'text-slate-400'
-                  }`}
+                  className={`py-1.5 rounded-lg font-medium transition-all ${selectedRole === 'caregiver' ? 'bg-[#ff5a00] text-white font-bold' : 'text-slate-400'
+                    }`}
                 >
                   {t.caregiverRole}
                 </button>
                 <button
                   type="button"
                   onClick={() => setSelectedRole('asha')}
-                  className={`py-1.5 rounded-lg font-medium transition-all ${
-                    selectedRole === 'asha' ? 'bg-[#ff5a00] text-white font-bold' : 'text-slate-400'
-                  }`}
+                  className={`py-1.5 rounded-lg font-medium transition-all ${selectedRole === 'asha' ? 'bg-[#ff5a00] text-white font-bold' : 'text-slate-400'
+                    }`}
                 >
                   {t.ashaRole}
                 </button>
