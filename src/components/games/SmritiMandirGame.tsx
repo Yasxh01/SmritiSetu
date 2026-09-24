@@ -7,6 +7,8 @@ import { api, DdaEvaluationResult } from '../../services/api';
 import { DdaFeedbackOverlay } from './DdaFeedbackOverlay';
 import { Language, translations } from '../../services/i18n';
 import { processGameplayTelemetry } from '../../ml/bridge';
+import { meloStore } from '../../services/meloStore';
+
 
 
 // Cultural items with authentic NER motifs
@@ -174,7 +176,7 @@ export const SmritiMandirGame: React.FC<SmritiMandirGameProps> = ({ onBack, curr
           audio_voice_latency_ms: 0,
         },
         {
-          rating: 640,
+          rating: meloStore.getMatrix().visualMemory,
           skill_vector: [1.0, 1.0, 1.0, 1.0],
           baseline_latency: { mean: 2000, std: 500 },
           rolling_accuracy: errors === 0 ? 1.0 : Math.max(0.2, 1.0 - errors * 0.2),
@@ -194,10 +196,14 @@ export const SmritiMandirGame: React.FC<SmritiMandirGameProps> = ({ onBack, curr
         hesitation_pause_ms: totalHesitationRef.current,
       });
       setDdaResult(res);
+      if (res && res.mElo_rating) {
+        meloStore.updateDomain('visualMemory', res.mElo_rating);
+      }
     } catch (e) {
       console.error(e);
     }
   };
+
 
 
   return (

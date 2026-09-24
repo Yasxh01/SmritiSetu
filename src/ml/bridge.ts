@@ -1,11 +1,13 @@
 import { repository, InboundTelemetryPayload } from '../edge/repository';
 import { syncWorker } from '../sync/worker';
+import { meloStore } from '../services/meloStore';
 import {
     RawTelemetryPayload,
     MLHandoffPayload,
     SessionState as PatientMLState,
     evaluateSession
 } from './melo';
+
 import {
     translateToClinicalTelemetry,
     ClinicalTelemetryOutput
@@ -61,7 +63,14 @@ export async function processGameplayTelemetry(
     // 4. Persist to Edge Database (<15ms)
     await repository.saveTelemetryEvent(eventToSave);
 
-    // 5. Notify CRDT Sync Worker
+    // 5. Update Live Reactive Cognitive Matrix Store
+    try {
+        meloStore.updateFromGame(telemetry.game_id, handoff.mElo_rating);
+    } catch (e) {
+        console.warn('Failed to update live melo store:', e);
+    }
+
+    // 6. Notify CRDT Sync Worker
     await syncWorker.triggerSync();
 
     return {
@@ -70,3 +79,4 @@ export async function processGameplayTelemetry(
         fhirObservation
     };
 }
+

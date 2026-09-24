@@ -5,6 +5,8 @@ import { audio } from '../../services/audioService';
 import { offlineService } from '../../services/offlineStore';
 import { Language, translations } from '../../services/i18n';
 import { processGameplayTelemetry } from '../../ml/bridge';
+import { meloStore } from '../../services/meloStore';
+
 
 
 interface DhwaniTarangGameProps {
@@ -184,13 +186,14 @@ export const DhwaniTarangGame: React.FC<DhwaniTarangGameProps> = ({ onBack, curr
             audio_voice_latency_ms: 50,
           },
           {
-            rating: 660,
+            rating: meloStore.getMatrix().auditoryRhythm,
             skill_vector: [1.0, 1.0, 1.0, 1.0],
             baseline_latency: { mean: 2000, std: 500 },
             rolling_accuracy: 0.9,
           }
         );
       } catch (err) {
+
         console.warn('Edge mElo bridge write:', err);
       }
 

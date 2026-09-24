@@ -4,6 +4,9 @@ import { ArrowLeft, CheckCircle2, RotateCcw, ListOrdered, Calendar } from 'lucid
 import { audio } from '../../services/audioService';
 import { offlineService } from '../../services/offlineStore';
 import { Language, translations } from '../../services/i18n';
+import { processGameplayTelemetry } from '../../ml/bridge';
+import { meloStore } from '../../services/meloStore';
+
 
 interface RoutineStep {
   id: string;
@@ -49,6 +52,28 @@ export const DainikDinlipiGame: React.FC<DainikDinlipiGameProps> = ({ onBack, cu
         confetti({ particleCount: 70, spread: 70, origin: { y: 0.6 } });
         setIsSuccess(true);
 
+        try {
+          await processGameplayTelemetry(
+            'ner-pat-78902-assamese',
+            {
+              session_id: `dinlipi-${Date.now()}`,
+              game_id: 'Dainik Dinlipi',
+              completion_time_ms: 1400,
+              error_count: 0,
+              hesitation_pause_ms: 120,
+              audio_voice_latency_ms: 0,
+            },
+            {
+              rating: meloStore.getMatrix().routineRecall,
+              skill_vector: [1.0, 1.0, 1.0, 1.0],
+              baseline_latency: { mean: 2000, std: 500 },
+              rolling_accuracy: 1.0,
+            }
+          );
+        } catch (err) {
+          console.warn('Edge mElo bridge write:', err);
+        }
+
         await offlineService.recordTelemetry({
           patient_id: 'ner-pat-78902-assamese',
           session_id: `dinlipi-${Date.now()}`,
@@ -59,6 +84,7 @@ export const DainikDinlipiGame: React.FC<DainikDinlipiGameProps> = ({ onBack, cu
           timestamp: new Date().toISOString(),
         });
       }
+
     } else {
       audio.playPluck(200);
     }

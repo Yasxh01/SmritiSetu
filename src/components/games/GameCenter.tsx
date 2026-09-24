@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Brain, Play, Sparkles, Volume2, Shield, Award, Mic, VolumeX } from 'lucide-react';
 import { SmritiMandirGame } from './SmritiMandirGame';
 import { DhwaniTarangGame } from './DhwaniTarangGame';
@@ -6,6 +6,7 @@ import { DhyaanKendraGame } from './DhyaanKendraGame';
 import { DainikDinlipiGame } from './DainikDinlipiGame';
 import { audio } from '../../services/audioService';
 import { Language, translations } from '../../services/i18n';
+import { meloStore, CognitiveSkillMatrix } from '../../services/meloStore';
 
 interface GameCenterProps {
   currentLang?: Language;
@@ -14,6 +15,23 @@ interface GameCenterProps {
 export const GameCenter: React.FC<GameCenterProps> = ({ currentLang = 'en' }) => {
   const [activeGame, setActiveGame] = useState<string | null>(null);
   const [isVoiceSpeaking, setIsVoiceSpeaking] = useState(false);
+  const [skillMatrix, setSkillMatrix] = useState<CognitiveSkillMatrix>(() => meloStore.getMatrix());
+
+  useEffect(() => {
+    setSkillMatrix(meloStore.getMatrix());
+
+    const handleUpdate = () => {
+      setSkillMatrix(meloStore.getMatrix());
+    };
+
+    window.addEventListener('melo_matrix_updated', handleUpdate);
+    window.addEventListener('storage', handleUpdate);
+    return () => {
+      window.removeEventListener('melo_matrix_updated', handleUpdate);
+      window.removeEventListener('storage', handleUpdate);
+    };
+  }, [activeGame]);
+
 
   const t = translations[currentLang];
 
@@ -97,7 +115,7 @@ export const GameCenter: React.FC<GameCenterProps> = ({ currentLang = 'en' }) =>
         <div className="space-y-3 z-10 max-w-xl">
           <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-[#ff5a00]/15 border border-[#ff5a00]/30 text-[#ff7a29] text-xs font-bold">
             <Sparkles className="w-3.5 h-3.5" />
-            <span>{t.gameHubBadge}</span>
+            <span>AI Dynamic Difficulty (mElo {skillMatrix.overallRating}+) Active</span>
           </div>
 
           <h1 className="text-2xl sm:text-4xl font-extrabold text-white tracking-tight">
@@ -124,52 +142,71 @@ export const GameCenter: React.FC<GameCenterProps> = ({ currentLang = 'en' }) =>
 
         {/* 4D Cognitive Skill Matrix Preview */}
         <div className="glass-card p-5 rounded-2xl border border-white/5 w-full md:w-72 space-y-3 shrink-0">
-          <span className="text-xs uppercase tracking-wider text-slate-400 font-bold block">
-            {t.skillMatrixTitle}
-          </span>
+          <div className="flex items-center justify-between">
+            <span className="text-xs uppercase tracking-wider text-slate-400 font-bold block">
+              {t.skillMatrixTitle}
+            </span>
+            <span className="text-[10px] text-emerald-400 font-mono font-bold flex items-center gap-1">
+              <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
+              Live Telemetry
+            </span>
+          </div>
 
-          <div className="space-y-2 text-xs">
+          <div className="space-y-2.5 text-xs">
             <div>
               <div className="flex justify-between text-slate-300 mb-1">
                 <span>{t.visualMemory}</span>
-                <span className="font-bold text-[#ff7a29]">640</span>
+                <span className="font-bold text-[#ff7a29] font-mono">{skillMatrix.visualMemory}</span>
               </div>
               <div className="w-full bg-white/5 h-1.5 rounded-full overflow-hidden">
-                <div className="bg-[#ff5a00] h-full rounded-full w-[64%]" />
+                <div
+                  className="bg-[#ff5a00] h-full rounded-full transition-all duration-700 ease-out"
+                  style={{ width: `${Math.min(100, Math.max(8, Math.round(skillMatrix.visualMemory / 10)))}%` }}
+                />
               </div>
             </div>
 
             <div>
               <div className="flex justify-between text-slate-300 mb-1">
                 <span>{t.auditoryRhythm}</span>
-                <span className="font-bold text-amber-400">620</span>
+                <span className="font-bold text-amber-400 font-mono">{skillMatrix.auditoryRhythm}</span>
               </div>
               <div className="w-full bg-white/5 h-1.5 rounded-full overflow-hidden">
-                <div className="bg-amber-400 h-full rounded-full w-[62%]" />
+                <div
+                  className="bg-amber-400 h-full rounded-full transition-all duration-700 ease-out"
+                  style={{ width: `${Math.min(100, Math.max(8, Math.round(skillMatrix.auditoryRhythm / 10)))}%` }}
+                />
               </div>
             </div>
 
             <div>
               <div className="flex justify-between text-slate-300 mb-1">
                 <span>{t.sustainedFocus}</span>
-                <span className="font-bold text-emerald-400">610</span>
+                <span className="font-bold text-emerald-400 font-mono">{skillMatrix.sustainedFocus}</span>
               </div>
               <div className="w-full bg-white/5 h-1.5 rounded-full overflow-hidden">
-                <div className="bg-emerald-400 h-full rounded-full w-[61%]" />
+                <div
+                  className="bg-emerald-400 h-full rounded-full transition-all duration-700 ease-out"
+                  style={{ width: `${Math.min(100, Math.max(8, Math.round(skillMatrix.sustainedFocus / 10)))}%` }}
+                />
               </div>
             </div>
 
             <div>
               <div className="flex justify-between text-slate-300 mb-1">
                 <span>{t.routineRecall}</span>
-                <span className="font-bold text-sky-400">650</span>
+                <span className="font-bold text-sky-400 font-mono">{skillMatrix.routineRecall}</span>
               </div>
               <div className="w-full bg-white/5 h-1.5 rounded-full overflow-hidden">
-                <div className="bg-sky-400 h-full rounded-full w-[65%]" />
+                <div
+                  className="bg-sky-400 h-full rounded-full transition-all duration-700 ease-out"
+                  style={{ width: `${Math.min(100, Math.max(8, Math.round(skillMatrix.routineRecall / 10)))}%` }}
+                />
               </div>
             </div>
           </div>
         </div>
+
       </div>
 
       {/* 4 Games Grid */}

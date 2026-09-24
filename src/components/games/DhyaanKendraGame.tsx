@@ -4,6 +4,9 @@ import { ArrowLeft, CheckCircle2, RotateCcw, Sparkles } from 'lucide-react';
 import { audio } from '../../services/audioService';
 import { offlineService } from '../../services/offlineStore';
 import { Language, translations } from '../../services/i18n';
+import { processGameplayTelemetry } from '../../ml/bridge';
+import { meloStore } from '../../services/meloStore';
+
 
 interface Item {
   id: number;
@@ -43,6 +46,28 @@ export const DhyaanKendraGame: React.FC<DhyaanKendraGameProps> = ({ onBack, curr
         setCompleted(true);
         confetti({ particleCount: 60, spread: 60, origin: { y: 0.6 } });
 
+        try {
+          await processGameplayTelemetry(
+            'ner-pat-78902-assamese',
+            {
+              session_id: `dhyaan-${Date.now()}`,
+              game_id: 'Dhyaan Kendra',
+              completion_time_ms: 1100,
+              error_count: 0,
+              hesitation_pause_ms: 80,
+              audio_voice_latency_ms: 0,
+            },
+            {
+              rating: meloStore.getMatrix().sustainedFocus,
+              skill_vector: [1.0, 1.0, 1.0, 1.0],
+              baseline_latency: { mean: 2000, std: 500 },
+              rolling_accuracy: 1.0,
+            }
+          );
+        } catch (err) {
+          console.warn('Edge mElo bridge write:', err);
+        }
+
         await offlineService.recordTelemetry({
           patient_id: 'ner-pat-78902-assamese',
           session_id: `dhyaan-${Date.now()}`,
@@ -53,6 +78,7 @@ export const DhyaanKendraGame: React.FC<DhyaanKendraGameProps> = ({ onBack, curr
           timestamp: new Date().toISOString(),
         });
       }
+
     } else {
       audio.playPluck(220);
     }
