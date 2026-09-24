@@ -51,6 +51,7 @@ export const SmritiMandirGame: React.FC<SmritiMandirGameProps> = ({ onBack, curr
   const startTimeRef = useRef<number>(Date.now());
   const lastClickTimeRef = useRef<number>(Date.now());
   const totalHesitationRef = useRef<number>(0);
+  const hasTriggeredAnxietyRef = useRef<boolean>(false);
 
   // Initialize game deck (2 pairs each of 4 to 6 items)
   const initGame = (numPairs = 4) => {
@@ -78,6 +79,7 @@ export const SmritiMandirGame: React.FC<SmritiMandirGameProps> = ({ onBack, curr
     startTimeRef.current = Date.now();
     lastClickTimeRef.current = Date.now();
     totalHesitationRef.current = 0;
+    hasTriggeredAnxietyRef.current = false;
   };
 
   useEffect(() => {
@@ -97,11 +99,13 @@ export const SmritiMandirGame: React.FC<SmritiMandirGameProps> = ({ onBack, curr
     }
     lastClickTimeRef.current = now;
 
-    // Check for Anxiety Relief trigger
-    if (pause > 4000 && !showAnxietyRelief && moves > 2) {
+    // Check for Anxiety Relief trigger only under true distress (>15s pause, after several moves, at most once)
+    if (pause > 15000 && !hasTriggeredAnxietyRef.current && moves > 4) {
+      hasTriggeredAnxietyRef.current = true;
       setShowAnxietyRelief(true);
       audio.playCalmingTone();
     }
+
 
     audio.playPluck(520);
 
@@ -136,11 +140,14 @@ export const SmritiMandirGame: React.FC<SmritiMandirGameProps> = ({ onBack, curr
         // Mismatched!
         setErrors((e) => {
           const newErrors = e + 1;
-          if (newErrors >= 3 && !showAnxietyRelief) {
+          if (newErrors >= 6 && !hasTriggeredAnxietyRef.current) {
+            hasTriggeredAnxietyRef.current = true;
             setShowAnxietyRelief(true);
+            audio.playCalmingTone();
           }
           return newErrors;
         });
+
         setTimeout(() => {
           setCards((prev) =>
             prev.map((c, i) => (i === idx1 || i === idx2 ? { ...c, isFlipped: false } : c))
@@ -340,9 +347,10 @@ export const SmritiMandirGame: React.FC<SmritiMandirGameProps> = ({ onBack, curr
         currentLang={currentLang}
         onDismiss={() => {
           setShowAnxietyRelief(false);
-          initGame(3); // Lower difficulty to 3 pairs
+          lastClickTimeRef.current = Date.now();
         }}
       />
+
     </div>
   );
 };
