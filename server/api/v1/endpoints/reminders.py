@@ -83,6 +83,52 @@ async def create_reminder(payload: ReminderCreate, db: AsyncSession = Depends(ge
     await db.refresh(reminder)
     return reminder
 
+@router.post("/reset-all", response_model=List[ReminderResponse])
+async def reset_all_reminders(
+    patient_id: str = Query(...),
+    db: AsyncSession = Depends(get_db)
+):
+    """
+    Resets all reminders for the patient back to pending status for demo presentation.
+    """
+    result = await db.execute(select(Reminder).where(Reminder.patient_id == patient_id))
+    reminders = result.scalars().all()
+    for rem in reminders:
+        rem.status = "pending"
+        rem.confirmed_at = None
+        rem.caregiver_verified = False
+    await db.commit()
+    for rem in reminders:
+        await db.refresh(rem)
+    return reminders
+
+@router.post("/{reminder_id}/toggle", response_model=ReminderResponse)
+async def toggle_reminder(
+    reminder_id: str,
+    db: AsyncSession = Depends(get_db)
+):
+    """
+    Toggles a reminder between pending and completed for seamless interactive demo.
+    """
+    result = await db.execute(select(Reminder).where(Reminder.id == reminder_id))
+    reminder = result.scalars().first()
+    if not reminder:
+        raise HTTPException(status_code=404, detail="Reminder not found")
+        
+    if reminder.status == "completed":
+        reminder.status = "pending"
+        reminder.confirmed_at = None
+        reminder.caregiver_verified = False
+    else:
+        now = datetime.now(timezone.utc)
+        reminder.status = "completed"
+        reminder.confirmed_at = now
+        reminder.caregiver_verified = True
+        
+    await db.commit()
+    await db.refresh(reminder)
+    return reminder
+
 @router.post("/{reminder_id}/confirm", response_model=ReminderResponse)
 async def confirm_reminder(
     reminder_id: str,

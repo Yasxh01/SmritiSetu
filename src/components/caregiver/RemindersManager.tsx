@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Plus, Check, Clock, Droplets, Pill, Calendar, Heart, ShieldCheck } from 'lucide-react';
+import { Plus, Check, Clock, Droplets, Pill, Calendar, Heart, ShieldCheck, RotateCcw } from 'lucide-react';
 import { api, ReminderItem } from '../../services/api';
 import { audio } from '../../services/audioService';
 import { offlineService } from '../../services/offlineStore';
@@ -14,6 +14,7 @@ export const RemindersManager: React.FC<RemindersManagerProps> = ({ currentLang 
   const [newTitle, setNewTitle] = useState('');
   const [newType, setNewType] = useState<'medication' | 'hydration' | 'daily_routine' | 'appointment'>('hydration');
   const [showAddModal, setShowAddModal] = useState(false);
+  const [isResetting, setIsResetting] = useState(false);
 
   const t = translations[currentLang];
 
@@ -67,6 +68,35 @@ export const RemindersManager: React.FC<RemindersManagerProps> = ({ currentLang 
     );
   };
 
+  const handleResetDemo = async () => {
+    setIsResetting(true);
+    try {
+      await api.resetAllReminders('ner-pat-78902-assamese');
+      await loadReminders();
+      audio.playChime(520, 'sine', 0.15);
+    } catch (e) {
+      console.error('Reset demo failed:', e);
+    } finally {
+      setIsResetting(false);
+    }
+  };
+
+  const handleToggle = async (item: ReminderItem) => {
+    if (item.status === 'completed') {
+      try {
+        await api.toggleReminder(item.id);
+        setReminders((prev) =>
+          prev.map((r) => (r.id === item.id ? { ...r, status: 'pending', caregiver_verified: false } : r))
+        );
+        audio.playChime(440, 'triangle', 0.1);
+      } catch (e) {
+        console.error('Toggle reminder failed:', e);
+      }
+    } else {
+      await handleConfirm(item);
+    }
+  };
+
   const handleCreate = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!newTitle.trim()) return;
@@ -117,13 +147,25 @@ export const RemindersManager: React.FC<RemindersManagerProps> = ({ currentLang 
           </p>
         </div>
 
-        <button
-          onClick={() => setShowAddModal(true)}
-          className="btn-primary px-5 py-2.5 text-xs font-bold flex items-center gap-1.5 shadow-glow-orange"
-        >
-          <Plus className="w-4 h-4" />
-          <span>{t.addReminder}</span>
-        </button>
+        <div className="flex items-center gap-2.5">
+          <button
+            onClick={handleResetDemo}
+            disabled={isResetting}
+            title="Reset schedule to pending for demo presentation"
+            className="px-4 py-2.5 rounded-xl border border-white/10 hover:border-orange-500/40 bg-white/5 hover:bg-white/10 text-xs font-semibold text-slate-300 hover:text-white flex items-center gap-1.5 transition-all shadow-sm active:scale-95"
+          >
+            <RotateCcw className={`w-3.5 h-3.5 text-orange-400 ${isResetting ? 'animate-spin' : ''}`} />
+            <span>{currentLang === 'as' ? 'ডেমো ৰিছেট' : currentLang === 'hi' ? 'डेमो रीसेट' : 'Reset Demo'}</span>
+          </button>
+
+          <button
+            onClick={() => setShowAddModal(true)}
+            className="btn-primary px-5 py-2.5 text-xs font-bold flex items-center gap-1.5 shadow-glow-orange"
+          >
+            <Plus className="w-4 h-4" />
+            <span>{t.addReminder}</span>
+          </button>
+        </div>
       </div>
 
       {/* Reminders List */}
@@ -167,14 +209,18 @@ export const RemindersManager: React.FC<RemindersManagerProps> = ({ currentLang 
 
             <div className="flex items-center gap-2.5 self-end sm:self-center">
               {item.status === 'completed' ? (
-                <div className="flex items-center gap-1.5 text-xs font-semibold text-emerald-400 bg-emerald-500/10 border border-emerald-500/30 px-3.5 py-1.5 rounded-full">
-                  <ShieldCheck className="w-4 h-4" />
+                <button
+                  onClick={() => handleToggle(item)}
+                  title="Click to reset status for live demo"
+                  className="flex items-center gap-1.5 text-xs font-semibold text-emerald-400 bg-emerald-500/10 hover:bg-emerald-500/20 border border-emerald-500/30 px-3.5 py-1.5 rounded-full transition-all group cursor-pointer"
+                >
+                  <ShieldCheck className="w-4 h-4 text-emerald-400 group-hover:scale-110 transition-transform" />
                   <span>{t.caregiverVerified}</span>
-                </div>
+                </button>
               ) : (
                 <button
                   onClick={() => handleConfirm(item)}
-                  className="px-5 py-2 rounded-full bg-[#ff5a00] hover:bg-[#ff7300] text-white text-xs font-bold flex items-center gap-1.5 shadow-glow-orange transition-all"
+                  className="px-5 py-2 rounded-full bg-[#ff5a00] hover:bg-[#ff7300] text-white text-xs font-bold flex items-center gap-1.5 shadow-glow-orange transition-all active:scale-95"
                 >
                   <Check className="w-4 h-4 stroke-[3]" />
                   <span>{t.markDone}</span>

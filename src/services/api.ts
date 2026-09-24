@@ -303,6 +303,57 @@ class ApiService {
     }
   }
 
+  async resetAllReminders(patientId: string): Promise<ReminderItem[]> {
+    try {
+      return await this.request<ReminderItem[]>(`/reminders/reset-all?patient_id=${patientId}`, {
+        method: 'POST',
+      });
+    } catch {
+      return [
+        {
+          id: 'rem-1',
+          patient_id: patientId,
+          reminder_type: 'medication',
+          title: 'Donepezil 5mg (মস্তিষ্কৰ স্মৃতি শক্তিৰ ঔষধ)',
+          description: 'Post-breakfast with warm water',
+          scheduled_at: new Date(Date.now() + 3600000).toISOString(),
+          status: 'pending',
+          caregiver_verified: false,
+        },
+        {
+          id: 'rem-2',
+          patient_id: patientId,
+          reminder_type: 'hydration',
+          title: 'Drink Warm Water (এক গিলাচ কুহুমীয়া পানী খাওক)',
+          description: 'Regular hydration preserves cognitive alertness',
+          scheduled_at: new Date().toISOString(),
+          status: 'pending',
+          caregiver_verified: false,
+        },
+        {
+          id: 'rem-3',
+          patient_id: patientId,
+          reminder_type: 'daily_routine',
+          title: 'Evening Namghar Prayer / Music (নামঘৰ প্ৰাৰ্থনা)',
+          description: 'Calming auditory engagement',
+          scheduled_at: new Date(Date.now() + 18000000).toISOString(),
+          status: 'pending',
+          caregiver_verified: false,
+        },
+      ];
+    }
+  }
+
+  async toggleReminder(reminderId: string) {
+    try {
+      return await this.request<ReminderItem>(`/reminders/${reminderId}/toggle`, {
+        method: 'POST',
+      });
+    } catch {
+      return { id: reminderId, status: 'pending', caregiver_verified: false };
+    }
+  }
+
   // --- ASHA Cohort Endpoints ---
   async getAshaCohort(): Promise<AshaCohortResponse> {
     try {

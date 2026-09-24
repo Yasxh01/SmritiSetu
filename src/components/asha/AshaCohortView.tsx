@@ -101,6 +101,12 @@ export const AshaCohortView: React.FC<AshaCohortViewProps> = ({ currentLang = 'e
 
   const displayedPatients = (cohort?.patients && cohort.patients.length > 0) ? cohort.patients : defaultPatients;
 
+  // Dynamically derive summary stats to guarantee 100% mathematical consistency with displayed patient cards
+  const totalCount = displayedPatients.length;
+  const criticalCount = displayedPatients.filter((p) => p.triage_status === 'CRITICAL_DROP').length;
+  const warningCount = displayedPatients.filter((p) => p.triage_status === 'WARNING').length;
+  const stableCount = displayedPatients.filter((p) => p.triage_status === 'STABLE').length;
+
   return (
     <div className="max-w-6xl mx-auto p-4 sm:p-8 space-y-8 animate-fade-in">
       {/* Header */}
@@ -131,25 +137,25 @@ export const AshaCohortView: React.FC<AshaCohortViewProps> = ({ currentLang = 'e
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
         <div className="glass-card p-5 rounded-2xl border border-white/10 space-y-1">
           <span className="text-xs text-slate-400">{t.totalEnrolled}</span>
-          <div className="text-3xl font-extrabold text-white">{cohort?.total_patients || displayedPatients.length}</div>
+          <div className="text-3xl font-extrabold text-white">{totalCount}</div>
           <span className="text-[11px] text-slate-500">{t.elderlyHouseholds}</span>
         </div>
 
         <div className="glass-card p-5 rounded-2xl border border-red-500/30 bg-red-500/5 space-y-1">
           <span className="text-xs text-red-400 font-medium">{t.criticalDecline}</span>
-          <div className="text-3xl font-extrabold text-red-400">{cohort?.critical_count || 1}</div>
+          <div className="text-3xl font-extrabold text-red-400">{criticalCount}</div>
           <span className="text-[11px] text-red-300/80">{t.immediateVisit}</span>
         </div>
 
         <div className="glass-card p-5 rounded-2xl border border-amber-500/30 bg-amber-500/5 space-y-1">
           <span className="text-xs text-amber-400 font-medium">{t.warningLatency}</span>
-          <div className="text-3xl font-extrabold text-amber-400">{cohort?.warning_count || 1}</div>
+          <div className="text-3xl font-extrabold text-amber-400">{warningCount}</div>
           <span className="text-[11px] text-amber-300/80">{t.followupNeeded}</span>
         </div>
 
         <div className="glass-card p-5 rounded-2xl border border-emerald-500/30 bg-emerald-500/5 space-y-1">
           <span className="text-xs text-emerald-400 font-medium">{t.stableStatus}</span>
-          <div className="text-3xl font-extrabold text-emerald-400">{cohort?.stable_count || 2}</div>
+          <div className="text-3xl font-extrabold text-emerald-400">{stableCount}</div>
           <span className="text-[11px] text-emerald-300/80">{t.consistentAdherence}</span>
         </div>
       </div>
