@@ -11,7 +11,7 @@ export async function deriveEncryptionKey(passphrase: string, salt: Uint8Array):
   return crypto.subtle.deriveKey(
     {
       name: "PBKDF2",
-      salt: salt,
+      salt: salt as any,
       iterations: 100000,
       hash: "SHA-256"
     },
@@ -64,7 +64,7 @@ export async function encryptPayload(data: object | string, key: CryptoKey): Pro
 
   return {
     cipherText: bufferToBase64(cipherBuffer),
-    iv: bufferToBase64(iv),
+    iv: bufferToBase64(iv.buffer),
     salt: "" // To be populated by caller if they maintained a unique salt for this payload
   };
 }

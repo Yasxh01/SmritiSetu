@@ -19,7 +19,7 @@ interface LocalizedEvent {
   dltTemplateId: string;
 }
 
-const localizedEvents: Record<Language, Record<'sos' | 'anomaly' | 'medication', LocalizedEvent>> = {
+const localizedEvents: Partial<Record<Language, Record<'sos' | 'anomaly' | 'medication', LocalizedEvent>>> = {
   en: {
     sos: {
       title: '🚨 Emergency One-Touch SOS Alert',

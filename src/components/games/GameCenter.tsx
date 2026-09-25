@@ -84,7 +84,7 @@ export const GameCenter: React.FC<GameCenterProps> = ({ currentLang = 'en' }) =>
 
   const handleSpeakWelcome = () => {
     setIsVoiceSpeaking(true);
-    const greetings: Record<Language, string> = {
+    const greetings: Partial<Record<Language, string>> = {
       en: 'Welcome! Please select a cognitive exercise to begin.',
       hi: 'नमस्ते! अपनी पसंद का दिमागी खेल शुरू करें।',
       as: 'নমস্কাৰ! আপোনাৰ পছন্দৰ মগজুৰ খেল আৰম্ভ কৰক।',

@@ -62,6 +62,10 @@ class AudioService {
     } catch (e) {}
   }
 
+  playChime(...args: any[]) {
+    this.playSuccessChord();
+  }
+
   // Calming soothing ambient wave (Anxiety-Relief Guard trigger)
   playCalmingTone() {
     try {
