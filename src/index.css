@@ -7,7 +7,7 @@
 body {
   margin: 0;
   background-color: #07080c;
-  background-image: 
+  background-image:
     radial-gradient(circle at 20% 25%, rgba(255, 90, 0, 0.08) 0%, transparent 40%),
     radial-gradient(circle at 80% 80%, rgba(255, 149, 0, 0.05) 0%, transparent 40%);
   background-attachment: fixed;
@@ -25,6 +25,7 @@ body {
 .glass-card-hover {
   transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
 }
+
 .glass-card-hover:hover {
   transform: translateY(-2px);
   border-color: rgba(255, 90, 0, 0.35);
@@ -37,6 +38,7 @@ body {
   color: #f1f5f9;
   transition: all 0.2s ease;
 }
+
 .input-field:focus {
   border-color: #ff5a00;
   box-shadow: 0 0 0 2px rgba(255, 90, 0, 0.25);
@@ -51,10 +53,12 @@ body {
   box-shadow: 0 8px 25px rgba(255, 90, 0, 0.4);
   transition: all 0.3s ease;
 }
+
 .btn-primary:hover {
   box-shadow: 0 10px 35px rgba(255, 90, 0, 0.6);
   transform: translateY(-1px);
 }
+
 .btn-primary:active {
   transform: translateY(1px);
 }
@@ -74,13 +78,16 @@ body {
   width: 8px;
   height: 8px;
 }
+
 ::-webkit-scrollbar-track {
   background: #0c0d14;
 }
+
 ::-webkit-scrollbar-thumb {
   background: #232736;
   border-radius: 4px;
 }
+
 ::-webkit-scrollbar-thumb:hover {
   background: #ff5a00;
 }

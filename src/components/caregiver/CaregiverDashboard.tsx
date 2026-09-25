@@ -1,10 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import { AreaChart, Area, XAxis, YAxis, Tooltip, ResponsiveContainer } from 'recharts';
-import { Activity, AlertTriangle, ShieldCheck, HeartPulse, Clock, FileText, Phone, Sparkles, Stethoscope, ClipboardList, CheckCircle2, Smartphone } from 'lucide-react';
+import { Activity, AlertTriangle, ShieldCheck, HeartPulse, Clock, FileText, Phone, Sparkles, Stethoscope, ClipboardList, CheckCircle2, Smartphone, ChevronDown } from 'lucide-react';
 import { api, ChiData } from '../../services/api';
 import { Language, translations } from '../../services/i18n';
 import { SmsDispatchModal } from '../common/SmsDispatchModal';
-
+import { downloadCSV, downloadPDF } from '../../utils/exportUtils';
 interface CaregiverDashboardProps {
   currentLang?: Language;
   activeRole?: 'patient' | 'caregiver' | 'asha' | 'doctor';
@@ -14,6 +14,7 @@ export const CaregiverDashboard: React.FC<CaregiverDashboardProps> = ({ currentL
   const [chiData, setChiData] = useState<ChiData | null>(null);
   const [loading, setLoading] = useState(true);
   const [showSmsModal, setShowSmsModal] = useState(false);
+  const [isExportOpen, setIsExportOpen] = useState(false);
 
   const t = translations[currentLang];
   const isDoctor = activeRole === 'doctor';
@@ -40,6 +41,51 @@ export const CaregiverDashboard: React.FC<CaregiverDashboardProps> = ({ currentL
       isDropDay: idx >= 20 && idx <= 23,
     })) || [];
 
+  const patientId = 'ner-pat-78902-assamese';
+
+  const fhirObservationData = {
+    resourceType: "Observation",
+    status: "final",
+    code: {
+      coding: [
+        { system: "http://loinc.org", code: "72172-0", display: "Cognitive function" },
+        { system: "http://who.int/icf", code: "b1440", display: "Memory functions" },
+        { system: "http://who.int/icf", code: "b1560", display: "Visuospatial functions" },
+        { system: "http://who.int/icf", code: "b1641", display: "Executive functions" },
+        { system: "http://who.int/icf", code: "b1670", display: "Auditory rhythm functions" }
+      ]
+    },
+    valueQuantity: { value: chiData?.chi_score_current || 78.4, unit: "score" }
+  };
+
+  const handleFHIRExport = () => {
+    // 1. Ensure fhirObservationData exists
+    if (!fhirObservationData) {
+      console.error("No FHIR data available to export");
+      return;
+    }
+
+    // 2. Serialize the JSON data
+    const jsonString = JSON.stringify(fhirObservationData, null, 2);
+    
+    // 3. Create a Blob with the JSON content
+    const blob = new Blob([jsonString], { type: 'application/json' });
+    
+    // 4. Create a temporary URL for the Blob
+    const url = URL.createObjectURL(blob);
+    
+    // 5. Create a hidden anchor tag to trigger the download
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `fhir_observation_${patientId || 'export'}.json`; // Dynamic filename
+    
+    // 6. Append, click, and clean up
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+  };
+
   return (
     <div className="max-w-6xl mx-auto p-4 sm:p-8 space-y-8 animate-fade-in">
       {/* Header */}
@@ -64,13 +110,48 @@ export const CaregiverDashboard: React.FC<CaregiverDashboardProps> = ({ currentL
         </div>
 
         <div className="flex items-center gap-2.5">
-          <button
-            onClick={() => alert('HL7 FHIR v1.0 Observation resource JSON copied to clipboard!')}
-            className="px-4 py-2 rounded-xl bg-white/5 hover:bg-white/10 border border-white/10 text-xs font-semibold text-slate-200 flex items-center gap-1.5"
-          >
-            <FileText className="w-4 h-4 text-emerald-400" />
-            <span>{t.exportFhir}</span>
-          </button>
+          <div className="relative">
+            <button
+              onClick={() => setIsExportOpen(!isExportOpen)}
+              className="px-4 py-2 rounded-xl bg-white/5 hover:bg-white/10 border border-white/10 text-xs font-semibold text-slate-200 flex items-center gap-1.5"
+            >
+              <FileText className="w-4 h-4 text-emerald-400" />
+              <span>{t.exportFhir || 'Export'}</span>
+              <ChevronDown className="w-4 h-4 text-slate-400" />
+            </button>
+            
+            {isExportOpen && (
+              <div className="absolute right-0 mt-2 w-48 bg-[#12141c] border border-white/10 rounded-xl shadow-lg z-50 overflow-hidden">
+                <button
+                  onClick={() => {
+                    downloadPDF(fhirObservationData, patientId);
+                    setIsExportOpen(false);
+                  }}
+                  className="w-full text-left px-4 py-2.5 text-xs text-slate-200 hover:bg-white/5 flex items-center gap-2"
+                >
+                  📄 Export as PDF
+                </button>
+                <button
+                  onClick={() => {
+                    downloadCSV(fhirObservationData, patientId);
+                    setIsExportOpen(false);
+                  }}
+                  className="w-full text-left px-4 py-2.5 text-xs text-slate-200 hover:bg-white/5 flex items-center gap-2"
+                >
+                  📊 Export as Excel (CSV)
+                </button>
+                <button
+                  onClick={() => {
+                    handleFHIRExport();
+                    setIsExportOpen(false);
+                  }}
+                  className="w-full text-left px-4 py-2.5 text-xs text-slate-200 hover:bg-white/5 flex items-center gap-2"
+                >
+                  🧑💻 Export as FHIR JSON
+                </button>
+              </div>
+            )}
+          </div>
           <a
             href="tel:+919876543211"
             className="px-4 py-2 rounded-xl bg-[#ff5a00]/20 hover:bg-[#ff5a00]/30 border border-[#ff5a00]/40 text-xs font-bold text-[#ff7a29] flex items-center gap-1.5"

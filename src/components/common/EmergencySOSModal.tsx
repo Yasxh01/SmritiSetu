@@ -22,7 +22,7 @@ export const EmergencySOSModal: React.FC<EmergencySOSModalProps> = ({
 }) => {
   const [countdown, setCountdown] = useState(3);
   const [dispatched, setDispatched] = useState(false);
-  const [coords, setCoords] = useState({ lat: 26.1433, lng: 91.7898 }); // Kamrup, Assam
+  const [coords, setCoords] = useState({ lat: 26.1445, lng: 91.7362 }); // Guwahati, Assam
   const [showSmsPreview, setShowSmsPreview] = useState(false);
 
   const t = translations[currentLang];

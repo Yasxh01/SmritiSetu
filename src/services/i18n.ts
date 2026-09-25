@@ -1,4 +1,4 @@
-export type Language = 'en' | 'hi' | 'as' | 'bn' | 'brx';
+export type Language = 'en' | 'hi' | 'as' | 'bn' | 'brx' | 'mni' | 'lus' | 'ne' | 'sk' | 'kok';
 
 export const translations: Record<Language, Record<string, string>> = {
   en: {
@@ -1065,4 +1065,9 @@ export const translations: Record<Language, Record<string, string>> = {
     gpsCoords: 'GPS स्थाय:',
     call108: 'एम्बुलेन्स कल खालाम (१०८)',
   },
+  mni: {},
+  lus: {},
+  ne: {},
+  sk: {},
+  kok: {},
 };
