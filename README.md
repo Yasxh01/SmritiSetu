@@ -4,8 +4,8 @@
 [![TypeScript](https://img.shields.io/badge/Frontend-TypeScript_&_React-3178C6.svg?logo=typescript&logoColor=white)](https://www.typescriptlang.org/)
 [![Vite](https://img.shields.io/badge/Build-Vite_8-646CFF.svg?logo=vite&logoColor=white)](https://vitejs.dev/)
 [![Offline-First](https://img.shields.io/badge/Storage-Dexie.js_IndexedDB-orange.svg)](https://dexie.org/)
-![Pytest](https://img.shields.io/badge/Backend_Tests-38%20Passed-brightgreen.svg)
-![Vitest](https://img.shields.io/badge/Frontend_Tests-23%20Passed-brightgreen.svg)
+[![Pytest](https://img.shields.io/badge/Backend_Tests-38%20Passed-brightgreen.svg)](#-comprehensive-test-suite)
+[![Vitest](https://img.shields.io/badge/Frontend_Tests-23%20Passed-brightgreen.svg)](#-comprehensive-test-suite)
 [![FHIR](https://img.shields.io/badge/Standards-HL7_FHIR_LOINC_72172--0-blue.svg)](https://loinc.org/72172-0/)
 [![Render](https://img.shields.io/badge/Deploy-Render_Cloud-46E3B7.svg?logo=render&logoColor=white)](https://smritisetu-api.onrender.com)
 
