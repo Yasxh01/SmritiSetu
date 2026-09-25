@@ -50,6 +50,7 @@ export async function processGameplayTelemetry(
         error_count: telemetry.error_count,
         hesitation_pause_ms: telemetry.hesitation_pause_ms,
         audio_voice_latency_ms: telemetry.audio_voice_latency_ms,
+        frustration_index: telemetry.frustration_index,
         timestamp: timestamp
     };
 

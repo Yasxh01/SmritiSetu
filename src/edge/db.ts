@@ -19,6 +19,7 @@ export interface TelemetryEvent {
   error_count: number;
   hesitation_pause_ms: number;
   audio_voice_latency_ms?: number;
+  frustration_index?: number;
   metrics_json?: string; // Encrypted metrics
   timestamp: string;
   synced_status: 'PENDING' | 'IN_FLIGHT' | 'SYNCED';

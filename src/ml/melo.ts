@@ -8,6 +8,7 @@ export interface RawTelemetryPayload {
     error_count: number;
     hesitation_pause_ms: number;
     audio_voice_latency_ms: number;
+    frustration_index?: number;
 }
 
 export interface MLHandoffPayload {

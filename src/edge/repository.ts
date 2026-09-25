@@ -10,6 +10,7 @@ export interface InboundTelemetryPayload {
   error_count: number;
   hesitation_pause_ms: number;
   audio_voice_latency_ms?: number;
+  frustration_index?: number;
   timestamp: string;
 }
 
@@ -45,6 +46,7 @@ export class Repository {
       error_count: event.error_count,
       hesitation_pause_ms: event.hesitation_pause_ms,
       audio_voice_latency_ms: event.audio_voice_latency_ms,
+      frustration_index: event.frustration_index,
       timestamp: event.timestamp,
       metrics_json: encryptedMetrics,
       synced_status: 'PENDING'
