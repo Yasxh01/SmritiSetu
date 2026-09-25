@@ -251,11 +251,10 @@ export const SmritiMandirGame: React.FC<SmritiMandirGameProps> = ({ onBack, curr
             key={card.index}
             onClick={() => handleCardClick(card.index)}
             disabled={card.isMatched || card.isFlipped}
-            className={`h-36 sm:h-44 rounded-2xl p-4 flex flex-col items-center justify-center text-center transition-all duration-300 transform select-none ${
-              card.isFlipped || card.isMatched
+            className={`h-36 sm:h-44 rounded-2xl p-4 flex flex-col items-center justify-center text-center transition-all duration-300 transform select-none ${card.isFlipped || card.isMatched
                 ? 'bg-gradient-to-b from-[#181c28] to-[#12141c] border-2 border-[#ff5a00] shadow-glow-orange scale-[1.02]'
                 : 'glass-card hover:border-[#ff5a00]/40 hover:scale-[1.02] active:scale-95'
-            }`}
+              }`}
           >
             {card.isFlipped || card.isMatched ? (
               <div className="space-y-2 animate-fade-in">

@@ -258,13 +258,12 @@ export const DhwaniTarangGame: React.FC<DhwaniTarangGameProps> = ({ onBack, curr
         {/* Dynamic Status / Step Banner */}
         {gameState !== 'idle' && (
           <div
-            className={`p-4 rounded-2xl border text-sm font-bold flex items-center justify-center gap-3 transition-all ${
-              gameState === 'listening'
+            className={`p-4 rounded-2xl border text-sm font-bold flex items-center justify-center gap-3 transition-all ${gameState === 'listening'
                 ? 'bg-amber-500/20 border-amber-500/40 text-amber-200 animate-pulse'
                 : isSuccess
-                ? 'bg-emerald-500/20 border-emerald-500/40 text-emerald-200'
-                : 'bg-[#ff5a00]/20 border-[#ff5a00]/40 text-white'
-            }`}
+                  ? 'bg-emerald-500/20 border-emerald-500/40 text-emerald-200'
+                  : 'bg-[#ff5a00]/20 border-[#ff5a00]/40 text-white'
+              }`}
           >
             {gameState === 'listening' ? (
               <Ear className="w-5 h-5 text-amber-400 animate-bounce" />
@@ -300,15 +299,14 @@ export const DhwaniTarangGame: React.FC<DhwaniTarangGameProps> = ({ onBack, curr
                 return (
                   <div
                     key={idx}
-                    className={`flex items-center gap-1.5 px-3 py-2 rounded-xl text-xs font-bold transition-all border ${
-                      isCurrentPlaying
+                    className={`flex items-center gap-1.5 px-3 py-2 rounded-xl text-xs font-bold transition-all border ${isCurrentPlaying
                         ? 'bg-amber-500/30 border-amber-400 text-amber-200 scale-110 shadow-[0_0_20px_rgba(245,158,11,0.6)]'
                         : isPlayerDone
-                        ? 'bg-emerald-500/25 border-emerald-400 text-emerald-300'
-                        : isPlayerNext
-                        ? 'bg-[#ff5a00]/20 border-[#ff5a00] text-white animate-pulse'
-                        : 'bg-white/5 border-white/10 text-slate-500'
-                    }`}
+                          ? 'bg-emerald-500/25 border-emerald-400 text-emerald-300'
+                          : isPlayerNext
+                            ? 'bg-[#ff5a00]/20 border-[#ff5a00] text-white animate-pulse'
+                            : 'bg-white/5 border-white/10 text-slate-500'
+                      }`}
                   >
                     <span>{idx + 1}.</span>
                     {/* In listening mode, reveal what is playing. In player turn, reveal what player has tapped */}
@@ -347,11 +345,9 @@ export const DhwaniTarangGame: React.FC<DhwaniTarangGameProps> = ({ onBack, curr
                 key={inst.id}
                 onClick={() => handleInstrumentClick(inst.id)}
                 disabled={isDisabled}
-                className={`group relative p-6 sm:p-7 rounded-3xl border text-white flex flex-col items-center justify-center space-y-3 transition-all duration-300 ${
-                  inst.color
-                } ${
-                  isActive ? inst.activeColor : 'hover:border-white/30 hover:scale-[1.02]'
-                } ${isDisabled ? 'cursor-not-allowed opacity-90' : 'cursor-pointer active:scale-95'}`}
+                className={`group relative p-6 sm:p-7 rounded-3xl border text-white flex flex-col items-center justify-center space-y-3 transition-all duration-300 ${inst.color
+                  } ${isActive ? inst.activeColor : 'hover:border-white/30 hover:scale-[1.02]'
+                  } ${isDisabled ? 'cursor-not-allowed opacity-90' : 'cursor-pointer active:scale-95'}`}
               >
                 {/* Active Glowing Sound Wave Indicator */}
                 {isActive && (

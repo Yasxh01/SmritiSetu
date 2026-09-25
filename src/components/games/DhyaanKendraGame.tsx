@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import confetti from 'canvas-confetti';
 import { ArrowLeft, CheckCircle2, RotateCcw, Sparkles } from 'lucide-react';
 import { audio } from '../../services/audioService';
@@ -6,6 +6,9 @@ import { offlineService } from '../../services/offlineStore';
 import { Language, translations } from '../../services/i18n';
 import { processGameplayTelemetry } from '../../ml/bridge';
 import { meloStore } from '../../services/meloStore';
+
+const FaceMesh = (window as any).FaceMesh;
+const Camera = (window as any).Camera;
 
 
 interface Item {
@@ -36,6 +39,81 @@ export const DhyaanKendraGame: React.FC<DhyaanKendraGameProps> = ({ onBack, curr
   const [targetType, setTargetType] = useState<'golden_tips'>('golden_tips');
   const [completed, setCompleted] = useState(false);
 
+  const videoRef = useRef<HTMLVideoElement>(null);
+  const maxFrustrationRef = useRef<number>(0);
+  const cameraRef = useRef<any>(null);
+  const [cameraEnabled, setCameraEnabled] = useState(false);
+
+  useEffect(() => {
+    const startTelemetry = async () => {
+      try {
+        const stream = await navigator.mediaDevices.getUserMedia({ video: true });
+        if (videoRef.current) {
+          videoRef.current.srcObject = stream;
+          setCameraEnabled(true);
+        }
+      } catch (err) {
+        console.warn('Camera access denied for telemetry', err);
+      }
+    };
+    startTelemetry();
+    return () => {
+      if (videoRef.current && videoRef.current.srcObject) {
+        const tracks = (videoRef.current.srcObject as MediaStream).getTracks();
+        tracks.forEach(t => t.stop());
+      }
+    };
+  }, []);
+
+  useEffect(() => {
+    if (!cameraEnabled || !videoRef.current) return;
+    const faceMesh = new FaceMesh({
+      locateFile: (file) => `https://cdn.jsdelivr.net/npm/@mediapipe/face_mesh/${file}`
+    });
+    faceMesh.setOptions({
+      maxNumFaces: 1,
+      refineLandmarks: true,
+      minDetectionConfidence: 0.5,
+      minTrackingConfidence: 0.5
+    });
+
+    faceMesh.onResults((results: any) => {
+      if (results.multiFaceLandmarks && results.multiFaceLandmarks.length > 0) {
+        const landmarks = results.multiFaceLandmarks[0];
+        const leftEyebrowInner = landmarks[107];
+        const rightEyebrowInner = landmarks[336];
+        if (leftEyebrowInner && rightEyebrowInner) {
+          const dx = leftEyebrowInner.x - rightEyebrowInner.x;
+          const dy = leftEyebrowInner.y - rightEyebrowInner.y;
+          const dz = leftEyebrowInner.z - rightEyebrowInner.z;
+          const distance = Math.sqrt(dx * dx + dy * dy + dz * dz);
+          const furrowScore = Math.max(0, 0.1 - distance) * 10;
+          if (furrowScore > maxFrustrationRef.current) {
+            maxFrustrationRef.current = furrowScore;
+          }
+        }
+      }
+    });
+
+    const camera = new Camera(videoRef.current, {
+      onFrame: async () => {
+        if (videoRef.current) {
+          await faceMesh.send({ image: videoRef.current });
+        }
+      },
+      width: 640,
+      height: 480
+    });
+
+    camera.start();
+    cameraRef.current = camera;
+
+    return () => {
+      camera.stop();
+      faceMesh.close();
+    };
+  }, [cameraEnabled]);
+
   const handlePick = async (item: Item) => {
     if (item.type === targetType) {
       audio.playSuccessChord();
@@ -56,6 +134,7 @@ export const DhyaanKendraGame: React.FC<DhyaanKendraGameProps> = ({ onBack, curr
               error_count: 0,
               hesitation_pause_ms: 80,
               audio_voice_latency_ms: 0,
+              frustration_index: maxFrustrationRef.current,
             },
             {
               rating: meloStore.getMatrix().sustainedFocus,
@@ -92,6 +171,7 @@ export const DhyaanKendraGame: React.FC<DhyaanKendraGameProps> = ({ onBack, curr
 
   return (
     <div className="max-w-3xl mx-auto p-4 sm:p-6 space-y-6 animate-fade-in">
+      <video ref={videoRef} style={{ display: 'none' }} playsInline />
       <div className="flex items-center justify-between glass-card p-4 rounded-2xl border border-white/10">
         <button
           onClick={onBack}

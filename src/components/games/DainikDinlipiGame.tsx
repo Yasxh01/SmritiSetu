@@ -127,11 +127,10 @@ export const DainikDinlipiGame: React.FC<DainikDinlipiGameProps> = ({ onBack, cu
             return (
               <div
                 key={num}
-                className={`h-28 rounded-2xl border flex flex-col items-center justify-center p-3 text-center transition-all ${
-                  item
-                    ? 'bg-[#ff5a00]/15 border-[#ff5a00] text-white shadow-glow-orange'
-                    : 'bg-black/30 border-white/10 border-dashed text-slate-500'
-                }`}
+                className={`h-28 rounded-2xl border flex flex-col items-center justify-center p-3 text-center transition-all ${item
+                  ? 'bg-[#ff5a00]/15 border-[#ff5a00] text-white shadow-glow-orange'
+                  : 'bg-black/30 border-white/10 border-dashed text-slate-500'
+                  }`}
               >
                 {item ? (
                   <>
