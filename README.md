@@ -17,6 +17,7 @@
 
 | Component | URL | Description |
 | :--- | :--- | :--- |
+| **Frontend Web App** | [https://smriti-setu-nine.vercel.app/](https://smriti-setu-nine.vercel.app/) | React Edge Client (PWA) |
 | **Cloud API Backend** | [https://smritisetu-api.onrender.com](https://smritisetu-api.onrender.com) | FastAPI REST service with persistent SQLite/PostgreSQL |
 | **Interactive API Docs** | [https://smritisetu-api.onrender.com/docs](https://smritisetu-api.onrender.com/docs) | Interactive Swagger / OpenAPI 3.0 specification |
 | **Clinical ML Laboratory** | [https://smritisetu-api.onrender.com/ml-lab](https://smritisetu-api.onrender.com/ml-lab) | Interactive Random Forest biomarker visualizer & simulator |
