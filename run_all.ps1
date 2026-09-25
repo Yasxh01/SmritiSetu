@@ -6,10 +6,10 @@ Write-Host "===================================================" -ForegroundColo
 Set-Location $PSScriptRoot
 
 Write-Host "`n[1/3] Seeding demo patient data..." -ForegroundColor Green
-py -3.11 -m server.scripts.seed_demo_data
+python -m server.scripts.seed_demo_data
 
 Write-Host "`n[2/3] Launching FastAPI Backend on http://localhost:8000 ..." -ForegroundColor Green
-Start-Process powershell -ArgumentList "-NoExit", "-Command", "py -3.11 -m uvicorn server.main:app --reload --port 8000"
+Start-Process powershell -ArgumentList "-NoExit", "-Command", "python -m uvicorn server.main:app --reload --port 8000"
 
 Start-Sleep -Seconds 2
 
